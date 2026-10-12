@@ -6,26 +6,26 @@ type WaitlistType = 'pro' | 'api' | 'video' | 'deepfake';
 
 const COPY = {
   en: {
-    pro: ['Atlas Forensics Pro & API', 'Batch analysis, higher limits, PDF reports and an API for platforms. Get notified at launch.'],
-    api: ['Atlas Forensics API', 'Integrate AI-content forensics into your product.'],
+    pro: ['Atlas AI Detector Pro & API', 'Batch analysis, higher limits, PDF reports and an API for platforms. Get notified at launch.'],
+    api: ['Atlas AI Detector API', 'Integrate AI-content detection into your product.'],
     video: ['AI video detection — private beta', 'Get early access when video analysis opens.'],
     deepfake: ['Deepfake detection — private beta', 'Get early access when deepfake analysis opens.'],
     placeholder: 'you@company.com',
     cta: 'Join the waitlist',
-    ok: 'You are on the list. We will email you at launch.',
+    ok: 'Your address is saved on the waitlist. No confirmation email is sent at this time.',
     err: 'Could not register right now. Please try again.',
-    note: 'No spam. Deletion on request.'
+    note: 'Use an address you can access. This form saves your interest; it does not verify your mailbox. Deletion on request.'
   },
   fr: {
-    pro: ['Atlas Forensics Pro & API', 'Analyse par lots, limites étendues, rapports PDF et API pour les plateformes. Soyez prévenu au lancement.'],
-    api: ['API Atlas Forensics', 'Intégrez la forensique de contenus IA à votre produit.'],
+    pro: ['Atlas AI Detector Pro & API', 'Analyse par lots, limites étendues, rapports PDF et API pour les plateformes. Soyez prévenu au lancement.'],
+    api: ['API Atlas AI Detector', 'Intégrez la détection de contenus IA à votre produit.'],
     video: ['Détection vidéo IA — bêta privée', 'Accès anticipé dès l’ouverture de l’analyse vidéo.'],
     deepfake: ['Détection de deepfake — bêta privée', 'Accès anticipé dès l’ouverture de l’analyse deepfake.'],
     placeholder: 'vous@entreprise.fr',
     cta: 'Rejoindre la liste',
-    ok: 'Vous êtes inscrit. Nous vous écrirons au lancement.',
+    ok: 'Adresse enregistrée dans la liste d’attente. Aucun email de confirmation n’est envoyé pour le moment.',
     err: 'Inscription impossible pour le moment. Réessayez.',
-    note: 'Pas de spam. Suppression sur simple demande.'
+    note: 'Utilisez une adresse que vous pouvez consulter. Ce formulaire enregistre votre intérêt ; il ne vérifie pas votre boîte email. Suppression sur demande.'
   }
 };
 

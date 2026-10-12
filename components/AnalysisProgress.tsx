@@ -1,0 +1,9 @@
+﻿'use client';
+import { motion, useReducedMotion } from 'motion/react';
+import { ScanLine, ShieldCheck, FileCheck2 } from 'lucide-react';
+export default function AnalysisProgress({locale, video = false, text = false, provenanceOnly = false}:{locale:'en'|'fr'; video?: boolean; text?: boolean; provenanceOnly?: boolean}) {
+ const reduced=useReducedMotion();
+ const labels=text ? (locale === 'fr' ? ['Lecture du texte', 'Recherche de motifs linguistiques', 'Interprétation du score'] : ['Reading text', 'Inspecting linguistic patterns', 'Interpreting score']) : provenanceOnly ? (locale === 'fr' ? ['Lecture du fichier', 'Lecture du manifeste', 'Validation des signatures'] : ['Reading file', 'Reading manifest', 'Validating signatures']) : locale==='fr'?['Lecture du fichier','Recherche de signaux',video ? 'Consolidation des scores' : 'Vérification de provenance']:['Reading file','Inspecting signals',video ? 'Combining frame scores' : 'Checking provenance'];
+ const icons=[ScanLine,ShieldCheck,FileCheck2];
+ return <div className="analysis-progress" role="status" aria-live="polite"><div className="analysis-progress-heading"><span className="progress-pulse"/>{locale==='fr'?'Analyse en cours':'Analysis in progress'}</div><div className="analysis-progress-track"><motion.span initial={{width:'4%'}} animate={reduced?{width:'45%'}:{width:['4%','78%','91%']}} transition={{duration:12,ease:'easeOut',times:[0,.7,1]}} /></div><div className="analysis-progress-steps">{labels.map((label,i)=>{const Icon=icons[i];return <div key={label}><Icon size={17}/><span>{label}</span></div>})}</div><p>{provenanceOnly ? (locale === 'fr' ? 'Vérification locale : le fichier reste dans votre navigateur.' : 'Local check: the file stays in your browser.') : locale==='fr'?'Le temps de traitement dépend du fournisseur. Le résultat sera affiché dès sa réception.':'Processing time depends on the provider. Results appear when available.'}</p></div>
+}

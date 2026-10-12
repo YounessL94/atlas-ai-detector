@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { ShieldCheck } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/next';
 import { SITE_CONFIG, Locale } from '@/lib/config';
 
@@ -8,13 +9,13 @@ const NAV: Record<Locale, Array<{ href: string; label: string }>> = {
     { href: '/ai-image-detector', label: 'Image' },
     { href: '/ai-text-detector', label: 'Text' },
     { href: '/content-credentials-checker', label: 'C2PA' },
-    { href: '/deepfake-detector', label: 'Deepfake' }
+    { href: '/ai-video-detector', label: 'Video' }
   ],
   fr: [
     { href: '/fr/detecteur-image-ia', label: 'Image' },
     { href: '/fr/detecteur-ia-texte', label: 'Texte' },
     { href: '/fr/verificateur-content-credentials', label: 'C2PA' },
-    { href: '/fr/detecteur-deepfake', label: 'Deepfake' }
+    { href: '/fr/detecteur-video-ia', label: 'Vidéo' }
   ]
 };
 
@@ -27,7 +28,7 @@ export default function SiteShell({ locale, children }: { locale: Locale; childr
         <header className="header-wrap">
           <div className="header">
             <Link href={isFr ? '/fr' : '/'} className="logo">
-              {SITE_CONFIG.name}
+              <span className="brand-icon"><ShieldCheck size={22} aria-hidden="true" /></span><span>ATLAS <small>AI DETECTOR</small></span>
             </Link>
             <nav className="nav" aria-label={isFr ? 'Navigation principale' : 'Main navigation'}>
               {NAV[locale].map((n) => (
@@ -44,8 +45,9 @@ export default function SiteShell({ locale, children }: { locale: Locale; childr
             <Link href={isFr ? '/fr/detecteur-ia' : '/ai-detector'}>{isFr ? 'Détecteur IA' : 'AI Detector'}</Link>
             <Link href={isFr ? '/fr/detecteur-video-ia' : '/ai-video-detector'}>{isFr ? 'Vidéo IA (bêta)' : 'AI Video (beta)'}</Link>
             <Link href={isFr ? '/fr/confidentialite' : '/privacy'}>{isFr ? 'Confidentialité' : 'Privacy'}</Link>
+            <Link href={isFr ? '/fr/compte' : '/account'}>{isFr ? 'Mon compte' : 'My account'}</Link>
             <Link href={isFr ? '/fr/mentions-legales' : '/terms'}>{isFr ? 'Mentions légales' : 'Terms'}</Link>
-            <a href={`mailto:${SITE_CONFIG.contactEmail}`}>Contact</a>
+            {SITE_CONFIG.contactEmail && <a href={`mailto:${SITE_CONFIG.contactEmail}`}>Contact</a>}
           </nav>
           <p>
             © {new Date().getFullYear()} {SITE_CONFIG.legalName}.{' '}

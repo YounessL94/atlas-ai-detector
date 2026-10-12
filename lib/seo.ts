@@ -47,7 +47,7 @@ export function jsonLd(route: RouteContent): object[] {
       name: SITE_CONFIG.name,
       url: absUrl(route.slug),
       inLanguage: route.locale,
-      publisher: { '@type': 'Organization', name: SITE_CONFIG.legalName, url: 'https://atlaslab.io', email: SITE_CONFIG.contactEmail }
+      publisher: { '@type': 'Organization', name: SITE_CONFIG.legalName, url: SITE_CONFIG.url, email: SITE_CONFIG.contactEmail }
     });
   }
 

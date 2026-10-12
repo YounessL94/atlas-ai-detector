@@ -1,6 +1,6 @@
 import { Locale } from './config';
 
-export type ToolType = 'image' | 'text' | 'c2pa' | 'hub' | 'video' | 'deepfake' | 'privacy' | 'terms';
+export type ToolType = 'image' | 'text' | 'c2pa' | 'hub' | 'video' | 'deepfake' | 'privacy' | 'terms' | 'guide';
 
 export interface RouteContent {
   slug: string;
@@ -21,23 +21,23 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: '',
     locale: 'en',
     alt: 'fr',
-    title: 'AI Content Forensics — Check Text & Images for AI | Atlas Forensics',
-    metaDescription: 'Free AI Content Forensics for text and images. Check AI likelihood signals, C2PA provenance and honest uncertainty with no registration.',
-    h1: 'Free AI Content Forensics & Provenance',
+    title: 'AI Content Detection — Check Text & Images for AI | Atlas AI Detector',
+    metaDescription: 'Free AI Content Detection for text and images. Check AI likelihood signals, C2PA provenance and honest uncertainty with no registration.',
+    h1: 'Free AI Content Detection & Provenance',
     intro: 'Inspect images and text for AI generation signals and cryptographic Content Credentials.',
     toolType: 'hub',
     sections: [
       {
-        h2: 'What Atlas Forensics does',
+        h2: 'What Atlas AI Detector does',
         p: [
-          'Atlas Forensics combines a commercial AI-generated content classifier with Content Credentials (C2PA) inspection. You get an AI likelihood estimate, a reliability level, the provenance status of the file and the limitations that apply to the result.',
+          'Atlas AI Detector combines a commercial AI-generated content classifier with Content Credentials (C2PA) inspection. You get an AI likelihood estimate, a reliability level, the provenance status of the file and the limitations that apply to the result.',
           'When the evidence is weak or contradictory, the result is INDETERMINATE. We never turn a probabilistic score into a verdict of certainty.'
         ]
       },
       {
         h2: 'How to read a result',
         p: [
-          'The AI likelihood estimate is the probability reported by the detection model, not a percentage of AI content. Reliability reflects input quality (length, compression) and how consistent the signals are.',
+          'The AI signal estimate is the provider’s model score, not a calibrated probability or a percentage of AI content. Reliability reflects input quality (length, compression) and how consistent the signals are.',
           'Content Credentials are cryptographically signed provenance records. When present and valid they are strong evidence about how a file was produced. When absent, they prove nothing: most platforms strip metadata on upload.'
         ]
       }
@@ -52,10 +52,10 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'ai-detector',
     locale: 'en',
     alt: 'fr/detecteur-ia',
-    title: 'Free AI Detector for Text & Images | Atlas Forensics',
+    title: 'Free AI Detector for Text & Images | Atlas AI Detector',
     metaDescription: 'Analyze text and images for AI generation signals. Fast, free, transparent analysis with honest confidence levels.',
     h1: 'Free AI Detector Hub',
-    intro: 'Choose your modality to analyze forensic signals and check cryptographic provenance.',
+    intro: 'Choose your modality to analyze AI signals and check cryptographic provenance.',
     toolType: 'hub',
     sections: [
       {
@@ -66,7 +66,7 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
       }
     ],
     faq: [
-      { q: 'How does the AI detection hub work?', a: 'Select either image or text to run forensic signal analysis and inspect embedded Content Credentials.' },
+      { q: 'How does the AI detection hub work?', a: 'Select either image or text to run AI signal analysis and inspect embedded Content Credentials.' },
       { q: 'Is it free?', a: 'Yes. The public detectors are free with fair-use limits to prevent abuse.' }
     ]
   },
@@ -74,9 +74,9 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'ai-image-detector',
     locale: 'en',
     alt: 'fr/detecteur-image-ia',
-    title: 'AI Image Detector — Check If an Image Was AI-Generated | Atlas Forensics',
+    title: 'AI Image Detector — Check If an Image Was AI-Generated | Atlas AI Detector',
     metaDescription: 'Upload an image to inspect AI-generation signals and Content Credentials. Free, no account required.',
-    h1: 'AI Image Detector & Forensics',
+    h1: 'AI Image Detector & Analysis',
     intro: 'Upload an image (JPG, PNG, WEBP max 4MB) to analyze synthetic visual signals and extract C2PA credentials.',
     toolType: 'image',
     sections: [
@@ -98,16 +98,16 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'ai-text-detector',
     locale: 'en',
     alt: 'fr/detecteur-ia-texte',
-    title: 'AI Text Detector — Check Text for AI Signals | Atlas Forensics',
+    title: 'AI Text Detector — Check Text for AI Signals | Atlas AI Detector',
     metaDescription: 'Paste text to inspect signals associated with AI-generated writing. Get an AI likelihood estimate and honest reliability levels.',
     h1: 'AI Text Detector',
-    intro: 'Paste text (300 to 20,000 characters) to analyze linguistic predictability and structural coherence.',
+    intro: 'Paste text to analyze linguistic patterns. Beta limits: at least 300 characters, at most 500 words.',
     toolType: 'text',
     sections: [
       {
         h2: 'How the text detector works',
         p: [
-          'The text is split into segments of about 2,000 characters. Each segment is scored, then an overall estimate is produced. When segments disagree, we lower the reliability and may return INDETERMINATE.',
+          'Winston AI evaluates the text and returns a global human score, converted here into an AI signal score. When sentence scores suggest mixed writing, we lower reliability and may return INDETERMINATE.',
           'Short texts, lists, formulaic writing (legal, technical, templates) and text written by non-native speakers are the most common sources of false positives.'
         ]
       }
@@ -122,7 +122,7 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'content-credentials-checker',
     locale: 'en',
     alt: 'fr/verificateur-content-credentials',
-    title: 'Content Credentials Checker — Inspect C2PA Provenance | Atlas Forensics',
+    title: 'Content Credentials Checker — Inspect C2PA Provenance | Atlas AI Detector',
     metaDescription: 'Inspect C2PA Content Credentials in your browser. Verify digital manifests and AI attribution locally.',
     h1: 'Content Credentials (C2PA) Checker',
     intro: 'Inspect embedded C2PA metadata directly in your browser without uploading your image to any server.',
@@ -145,16 +145,16 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'ai-video-detector',
     locale: 'en',
     alt: 'fr/detecteur-video-ia',
-    title: 'AI Video Detector — Beta & AI Video Forensics | Atlas Forensics',
-    metaDescription: 'Explore AI video detection methods and join our beta waitlist for synthetic video forensics.',
-    h1: 'AI Video Forensics & Detector (Beta)',
-    intro: 'Video forensic analysis is currently in private beta testing. Join the waitlist for early access.',
+    title: 'AI Video Detector — Beta & AI Video Analysis | Atlas AI Detector',
+    metaDescription: 'Analyze short MP4 clips with Hive. View AI signal scores for analyzed frames and export a report.',
+    h1: 'AI Video Analysis & Detector (Beta)',
+    intro: 'Analyze an MP4 clip up to 4 MB, 5 seconds and 60 frames. Limited public beta: two video analyses per day across the service.',
     toolType: 'video',
     sections: [
       {
         h2: 'How AI video detection works',
         p: [
-          'Video detectors sample frames, score each for generation artifacts and check temporal consistency between frames. Results are noisier than for still images, which is why we are validating the feature before opening it.'
+          'Hive analyzes video frames and returns timestamped AI signal scores. This report shows the maximum score and frame details. It does not evaluate audio or prove a video’s origin.'
         ]
       }
     ],
@@ -166,9 +166,9 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'deepfake-detector',
     locale: 'en',
     alt: 'fr/detecteur-deepfake',
-    title: 'Deepfake Detector — Detection & Provenance Beta | Atlas Forensics',
-    metaDescription: 'Understand facial manipulation signals and join our deepfake forensics beta list.',
-    h1: 'Deepfake Detector & Facial Forensics',
+    title: 'Deepfake Detector — Detection & Provenance Beta | Atlas AI Detector',
+    metaDescription: 'Understand facial manipulation signals and join our deepfake detection beta list.',
+    h1: 'Deepfake Detector & Facial Analysis',
     intro: 'Deepfake detection requires spatial artifact inspection and audio-visual synchronization analysis.',
     toolType: 'deepfake',
     sections: [
@@ -187,8 +187,8 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'privacy',
     locale: 'en',
     alt: 'fr/confidentialite',
-    title: 'Privacy Policy | Atlas Forensics',
-    metaDescription: 'Privacy policy for Atlas Forensics.',
+    title: 'Privacy Policy | Atlas AI Detector',
+    metaDescription: 'Privacy policy for Atlas AI Detector.',
     h1: 'Privacy Policy',
     intro: 'We prioritize privacy and data minimization.',
     toolType: 'privacy',
@@ -196,25 +196,29 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
       {
         h2: 'Content you analyze',
         p: [
-          'Images and text submitted to the AI detectors are transmitted over HTTPS to our detection providers (Hive for images, Winston AI for text) to compute the result, then discarded by our application. We do not store submitted content in our own storage and do not use it for training.',
+          'Images and videos are transmitted over HTTPS to Hive for analysis. When text detection is available, text is sent to the configured text provider. Submitted content is then discarded by our application. We do not store submitted content in our own storage and do not use it for training.',
           'Content Credentials (C2PA) inspection runs entirely in your browser; the file is not uploaded for that check.'
         ]
       },
       {
         h2: 'Technical data',
         p: [
-          'To prevent abuse we compute a salted, one-way hash of your IP address and keep short-lived counters (up to 24 hours). Raw IP addresses are not stored. Bot protection is provided by Cloudflare Turnstile. Aggregate, cookieless audience measurement is provided by Vercel Analytics.'
+          'To prevent abuse we compute a salted, one-way hash of your IP address and keep short-lived counters (up to 24 hours). Raw IP addresses are not stored. Daily aggregate service counters (attempts, completed analyses, errors, waitlist registrations and partner-link redirects) are retained for up to 90 days. These counters contain no submitted content, email address or IP address. Bot protection is provided by Cloudflare Turnstile. Aggregate, cookieless audience measurement is provided by Vercel Analytics.'
         ]
+      },
+      {
+        h2: 'Atlas accounts and Google sign-in',
+        p: ['Google sign-in requests your email address and basic profile information to identify your Atlas account. It does not request access to your Gmail messages or Google Drive files. Supabase provides authentication and stores account information. Session cookies keep you signed in; signing out ends your Atlas session.', 'The account database can store credit transactions and analysis references, type, status and date. It does not store the text, images or videos you submit. Completed analyses for signed-in accounts are recorded as references, type, status and date in our protected service storage, without their content. The recent list is limited to 20 entries, retained for up to 90 days. Paid credits are not available yet. Accounts remain in beta.']
       },
       {
         h2: 'Waitlist',
         p: [
-          'If you join a waitlist we store your email address and the product you selected, only to contact you about that product. You can request deletion at any time by emailing contact@atlaslab.io.'
+          'If you join a waitlist we store your email address and the product you selected, only to contact you about that product. Contact: contact.atlasforensics@gmail.com; no commercial launch is announced.'
         ]
       },
       {
-        h2: 'Your rights',
-        p: ['Under the GDPR and similar laws you may request access, rectification or deletion of your personal data by contacting contact@atlaslab.io.']
+        h2: 'Partner links', p: ['Some pages contain affiliate links identified as such. Atlas may receive a commission for eligible purchases. Clicking opens an external website whose privacy and tracking rules apply. Atlas records only an aggregate redirect counter; no analyzed content, account email or report reference is sent through the link.'] }, { h2: 'Your rights',
+        p: ['You may request access, correction or deletion of your personal data. Contact: contact.atlasforensics@gmail.com.']
       }
     ],
     faq: []
@@ -223,10 +227,10 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'terms',
     locale: 'en',
     alt: 'fr/mentions-legales',
-    title: 'Terms of Service | Atlas Forensics',
+    title: 'Terms of Service | Atlas AI Detector',
     metaDescription: 'Terms of service and legal disclaimer.',
     h1: 'Terms of Service & Legal Disclaimer',
-    intro: 'Usage terms, probabilistic limitations, and legal disclaimers.',
+    intro: 'Atlas AI Detector is an independent beta project published by Youness Latifi. Contact: contact.atlasforensics@gmail.com. Additional legal details remain to be completed before commercial launch.',
     toolType: 'terms',
     sections: [
       {
@@ -252,23 +256,23 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr',
     locale: 'fr',
     alt: '',
-    title: 'Forensique IA — Analysez textes et images | Atlas Forensics',
-    metaDescription: 'Forensique IA gratuite pour textes et images. Analysez les signaux de génération IA et les Content Credentials C2PA.',
-    h1: 'Forensique IA & Provenance Gratuite',
+    title: 'Détection IA — Analysez textes et images | Atlas AI Detector',
+    metaDescription: 'Détection IA gratuite pour textes et images. Analysez les signaux de génération IA et les Content Credentials C2PA.',
+    h1: 'Détection IA & Provenance Gratuite',
     intro: 'Inspectez vos images et textes pour détecter les signaux de génération IA et vérifier la provenance.',
     toolType: 'hub',
     sections: [
       {
-        h2: 'Ce que fait Atlas Forensics',
+        h2: 'Ce que fait Atlas AI Detector',
         p: [
-          'Atlas Forensics combine un classifieur commercial de contenus générés par IA et l’inspection des Content Credentials (C2PA). Vous obtenez une estimation de probabilité IA, un niveau de fiabilité, le statut de provenance du fichier et les limites du résultat.',
+          'Atlas AI Detector combine un classifieur commercial de contenus générés par IA et l’inspection des Content Credentials (C2PA). Vous obtenez un score de signal IA, un indicateur de confiance, le statut de provenance du fichier et les limites du résultat.',
           'Quand les indices sont faibles ou contradictoires, le résultat est INDÉTERMINÉ. Nous ne transformons jamais un score probabiliste en certitude.'
         ]
       },
       {
         h2: 'Comment lire un résultat',
         p: [
-          'L’estimation IA est la probabilité fournie par le modèle de détection, pas un pourcentage de contenu IA. La fiabilité dépend de la qualité de l’entrée (longueur, compression) et de la cohérence des signaux.',
+          'L’estimation du signal IA est le score du fournisseur, pas une probabilité calibrée ni un pourcentage de contenu IA. La fiabilité dépend de la qualité de l’entrée (longueur, compression) et de la cohérence des signaux.',
           'L’absence de Content Credentials ne prouve rien : la plupart des plateformes suppriment les métadonnées à l’import.'
         ]
       }
@@ -283,10 +287,10 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/detecteur-ia',
     locale: 'fr',
     alt: 'ai-detector',
-    title: 'Détecteur IA gratuit pour texte et image | Atlas Forensics',
+    title: 'Détecteur IA gratuit pour texte et image | Atlas AI Detector',
     metaDescription: 'Analysez textes et images pour détecter les signaux de génération IA.',
     h1: 'Hub Détecteur IA',
-    intro: 'Choisissez votre modalité pour analyser les signaux forensiques et contrôler la provenance.',
+    intro: 'Choisissez votre modalité pour analyser les signaux IA et contrôler la provenance.',
     toolType: 'hub',
     sections: [
       {
@@ -304,9 +308,9 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/detecteur-image-ia',
     locale: 'fr',
     alt: 'ai-image-detector',
-    title: 'Détecteur d’image IA gratuit | Atlas Forensics',
+    title: 'Détecteur d’image IA gratuit | Atlas AI Detector',
     metaDescription: 'Importez une image et analysez les signaux de génération IA ainsi que les Content Credentials.',
-    h1: 'Détecteur d’Image IA & Forensique',
+    h1: 'Détecteur d’Image IA & Analyse IA',
     intro: 'Importez une image (JPG, PNG, WEBP max 4 Mo) pour analyser les signaux synthétiques.',
     toolType: 'image',
     sections: [
@@ -327,16 +331,16 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/detecteur-ia-texte',
     locale: 'fr',
     alt: 'ai-text-detector',
-    title: 'Détecteur IA texte gratuit | Atlas Forensics',
+    title: 'Détecteur IA texte gratuit | Atlas AI Detector',
     metaDescription: 'Collez un texte pour analyser les signaux associés à la rédaction par IA.',
     h1: 'Détecteur de Texte IA',
-    intro: 'Collez un texte (300 à 20 000 caractères) pour analyser la prédictibilité linguistique.',
+    intro: 'Collez un texte pour analyser les motifs linguistiques. Limites de la bêta : 300 caractères minimum, 500 mots maximum.',
     toolType: 'text',
     sections: [
       {
         h2: 'Fonctionnement du détecteur de texte',
         p: [
-          'Le texte est découpé en segments d’environ 2 000 caractères, chacun évalué séparément, puis une estimation globale est calculée. Si les segments divergent, la fiabilité baisse et le résultat peut être INDÉTERMINÉ.',
+          'Winston AI évalue le texte et renvoie un score humain global, converti ici en score de signal IA. Lorsque les scores des phrases suggèrent une rédaction mixte, la fiabilité baisse et le résultat peut être INDÉTERMINÉ.',
           'Les textes courts, les listes, les écrits très normés (juridique, technique) et les textes de non-natifs sont les principales sources de faux positifs.'
         ]
       }
@@ -350,7 +354,7 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/verificateur-content-credentials',
     locale: 'fr',
     alt: 'content-credentials-checker',
-    title: 'Vérificateur Content Credentials et C2PA | Atlas Forensics',
+    title: 'Vérificateur Content Credentials et C2PA | Atlas AI Detector',
     metaDescription: 'Inspectez les Content Credentials C2PA directement dans votre navigateur.',
     h1: 'Vérificateur Content Credentials (C2PA)',
     intro: 'Inspectez les métadonnées C2PA directement dans votre navigateur.',
@@ -372,28 +376,28 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/detecteur-video-ia',
     locale: 'fr',
     alt: 'ai-video-detector',
-    title: 'Détecteur vidéo IA — Bêta | Atlas Forensics',
-    metaDescription: 'Découvrez la détection vidéo IA et rejoignez la liste d’attente.',
+    title: 'Détecteur vidéo IA — Bêta | Atlas AI Detector',
+    metaDescription: 'Analysez de courts clips MP4 avec Hive. Consultez les scores par image analysée et exportez le rapport.',
     h1: 'Détecteur Vidéo IA (Bêta)',
-    intro: 'L’analyse vidéo est actuellement réservée à la bêta privée.',
+    intro: 'Analysez un clip MP4 de 4 Mo, 5 secondes et 60 images maximum. Bêta publique limitée à deux analyses vidéo par jour pour l’ensemble du service.',
     toolType: 'video',
     sections: [
       {
         h2: 'Comment fonctionne la détection vidéo',
-        p: ['Les détecteurs vidéo échantillonnent des images, évaluent chacune et contrôlent la cohérence temporelle. Les résultats sont plus bruités que pour les images fixes : nous validons la fonctionnalité avant de l’ouvrir.']
+        p: ['Hive analyse des images de la vidéo et renvoie des scores IA horodatés. Le rapport affiche le score maximal et le détail des images analysées. Il n’évalue pas l’audio et ne prouve pas l’origine de la vidéo.']
       }
     ],
     faq: [
-      { q: 'Pourquoi l’analyse vidéo n’est-elle pas publique ?', a: 'Le traitement image par image demande beaucoup de calcul et une vérification temporelle.' }
+      { q: 'Pourquoi l’analyse vidéo est-elle limitée ?', a: 'Le traitement image par image demande beaucoup de calcul et une vérification temporelle.' }
     ]
   },
   'fr/detecteur-deepfake': {
     slug: 'fr/detecteur-deepfake',
     locale: 'fr',
     alt: 'deepfake-detector',
-    title: 'Détecteur de deepfake — Bêta | Atlas Forensics',
+    title: 'Détecteur de deepfake — Bêta | Atlas AI Detector',
     metaDescription: 'Comprenez la détection de manipulation faciale et inscrivez-vous à la bêta.',
-    h1: 'Détecteur de Deepfake & Forensique',
+    h1: 'Détecteur de Deepfake & Analyse IA',
     intro: 'La détection de deepfake se concentre sur les artéfacts d’alignement facial.',
     toolType: 'deepfake',
     sections: [
@@ -408,8 +412,8 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/confidentialite',
     locale: 'fr',
     alt: 'privacy',
-    title: 'Politique de Confidentialité | Atlas Forensics',
-    metaDescription: 'Politique de confidentialité d’Atlas Forensics.',
+    title: 'Politique de Confidentialité | Atlas AI Detector',
+    metaDescription: 'Politique de confidentialité d’Atlas AI Detector.',
     h1: 'Politique de Confidentialité',
     intro: 'Nous appliquons une politique stricte de minimisation des données.',
     toolType: 'privacy',
@@ -417,21 +421,25 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
       {
         h2: 'Contenus analysés',
         p: [
-          'Les images et textes soumis aux détecteurs sont transmis en HTTPS à nos prestataires de détection (Hive pour les images, Winston AI pour les textes) pour calculer le résultat, puis abandonnés par notre application. Nous ne les conservons pas et ne les utilisons pas pour de l’entraînement.',
+          'Les images et vidéos sont transmises en HTTPS à Hive pour analyse. Lorsque la détection de texte est disponible, le texte est envoyé au prestataire configuré. Le contenu est ensuite abandonné par notre application. Nous ne les conservons pas et ne les utilisons pas pour de l’entraînement.',
           'L’inspection des Content Credentials (C2PA) s’exécute entièrement dans votre navigateur.'
         ]
       },
       {
         h2: 'Données techniques',
-        p: ['Pour prévenir les abus, nous calculons une empreinte salée et irréversible de votre adresse IP et conservons des compteurs de courte durée (24 heures maximum). Les adresses IP brutes ne sont pas stockées. La protection anti-robots est fournie par Cloudflare Turnstile ; la mesure d’audience agrégée et sans cookie par Vercel Analytics.']
+        p: ['Pour prévenir les abus, nous calculons une empreinte salée et irréversible de votre adresse IP et conservons des compteurs de courte durée (24 heures maximum). Les adresses IP brutes ne sont pas stockées. Des compteurs quotidiens agrégés (tentatives, analyses terminées, erreurs, inscriptions aux listes d’attente et redirections vers les partenaires) sont conservés jusqu’à 90 jours. Ces compteurs ne contiennent ni contenu soumis, ni adresse email, ni adresse IP. La protection anti-robots est fournie par Cloudflare Turnstile ; la mesure d’audience agrégée et sans cookie par Vercel Analytics.']
+      },
+      {
+        h2: 'Comptes Atlas et connexion Google',
+        p: ['La connexion Google demande votre adresse email et les informations de base de votre profil pour identifier votre compte Atlas. Elle ne demande aucun accès à vos messages Gmail ni à vos fichiers Google Drive. Supabase assure l’authentification et conserve les informations du compte. Des cookies de session permettent de rester connecté ; la déconnexion termine votre session Atlas.', 'La base des comptes peut conserver les opérations de crédits et les références, types, statuts et dates des analyses. Elle ne conserve pas les textes, images ou vidéos soumis. Les analyses terminées pour les comptes connectés sont enregistrées dans notre stockage de service protégé : référence, type, statut et date, sans leur contenu. La liste récente est limitée à 20 entrées, conservées jusqu’à 90 jours. Les crédits payants ne sont pas encore disponibles. Les comptes restent en bêta.']
       },
       {
         h2: 'Liste d’attente',
-        p: ['Si vous rejoignez une liste d’attente, nous conservons votre adresse email et le produit choisi, uniquement pour vous contacter à ce sujet. Suppression sur simple demande à contact@atlaslab.io.']
+        p: ['Si vous rejoignez une liste d’attente, nous conservons votre adresse email et le produit choisi, uniquement pour vous contacter à ce sujet. Contact : contact.atlasforensics@gmail.com ; aucun lancement commercial n’est annoncé.']
       },
       {
-        h2: 'Vos droits',
-        p: ['Conformément au RGPD, vous pouvez demander l’accès, la rectification ou la suppression de vos données en écrivant à contact@atlaslab.io.']
+        h2: 'Liens partenaires', p: ['Certaines pages contiennent des liens affiliés signalés comme tels. Atlas peut recevoir une commission sur les achats admissibles. Un clic ouvre un site externe, soumis à ses propres règles de confidentialité et de suivi. Atlas conserve uniquement un compteur agrégé de redirections ; aucun contenu analysé, email de compte ou référence de rapport n’est transmis par le lien.'] }, { h2: 'Vos droits',
+        p: ['Vous pouvez demander l’accès, la rectification ou la suppression de vos données personnelles. Contact : contact.atlasforensics@gmail.com.']
       }
     ],
     faq: []
@@ -440,7 +448,7 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
     slug: 'fr/mentions-legales',
     locale: 'fr',
     alt: 'terms',
-    title: 'Mentions Légales | Atlas Forensics',
+    title: 'Mentions Légales | Atlas AI Detector',
     metaDescription: 'Mentions légales et avertissement.',
     h1: 'Mentions Légales & Disclaimers',
     intro: 'Conditions d’utilisation et informations légales.',
@@ -456,7 +464,7 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
       },
       {
         h2: 'Éditeur',
-        p: ['Atlas Lab — contact : contact@atlaslab.io. Hébergement : Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis.']
+        p: ['Atlas AI Detector est un projet indépendant en bêta, édité par Youness Latifi. Contact : contact.atlasforensics@gmail.com. Les informations légales complémentaires restent à compléter avant tout lancement commercial. Hébergement : Vercel.']
       }
     ],
     faq: []
@@ -466,6 +474,52 @@ export const ROUTE_MAP: Record<string, RouteContent> = {
 export function pathFor(key: string): string {
   return '/' + key;
 }
+
+ROUTE_MAP['free-ai-detector-limits'] = {
+  slug: 'free-ai-detector-limits', locale: 'en', alt: 'fr/limites-detecteur-ia-gratuit',
+  title: 'Free AI detector: limits and planned Pro access | Atlas AI Detector',
+  metaDescription: 'Understand Atlas free image, text and video limits, shared capacity and planned Pro features.',
+  h1: 'Free access and planned Pro features', toolType: 'guide',
+  intro: 'Use the free beta within its published limits. Paid access is not available yet.',
+  sections: [
+    { h2: 'Free beta limits', p: ['Per network address: up to 5 image attempts, 2 text attempts and 1 video attempt per UTC day. People sharing a network share these limits; this is not an individual account quota.', 'Text: at least 300 characters and at most 500 words. Video: non-fragmented MP4, at most 4 MB, 5 seconds and 60 frames. C2PA checks run locally without a server analysis quota.'] },
+    { h2: 'Shared capacity', p: ['Global daily ceilings also apply: 90 Hive media attempts, including at most 2 video attempts, and 4 text attempts. Text also has a cumulative trial word budget. Availability can therefore end before your personal limit is reached.', 'Attempts may consume a quota even if the provider fails. These limits protect the trial credits and will be reviewed once usage is measured and funding is available.'] },
+    { h2: 'Planned Pro access', p: ['Higher quotas, batch processing, saved reports and paid credits are planned. There is no checkout, subscription or paid service to purchase today. Join the Pro waitlist on a detector page to express interest.'] }
+  ], faq: []
+};
+ROUTE_MAP['fr/limites-detecteur-ia-gratuit'] = {
+  slug: 'fr/limites-detecteur-ia-gratuit', locale: 'fr', alt: 'free-ai-detector-limits',
+  title: 'Détecteur IA gratuit : limites et futur accès Pro | Atlas AI Detector',
+  metaDescription: 'Comprenez les limites gratuites d’Atlas pour les images, textes et vidéos, la capacité partagée et le futur accès Pro.',
+  h1: 'Accès gratuit et futur accès Pro', toolType: 'guide',
+  intro: 'Utilisez la bêta gratuite dans les limites indiquées. L’accès payant n’est pas encore disponible.',
+  sections: [
+    { h2: 'Limites de la bêta gratuite', p: ['Par adresse réseau : jusqu’à 5 tentatives image, 2 tentatives texte et 1 tentative vidéo par jour UTC. Les personnes sur un même réseau partagent ces limites ; il ne s’agit pas d’un quota individuel avec compte.', 'Texte : 300 caractères minimum, 500 mots maximum. Vidéo : MP4 non fragmenté, 4 Mo, 5 secondes et 60 images maximum. Les vérifications C2PA sont locales, sans quota d’analyse serveur.'] },
+    { h2: 'Capacité partagée', p: ['Des plafonds quotidiens s’appliquent aussi à tout le site : 90 tentatives Hive pour les médias, dont 2 tentatives vidéo maximum, et 4 tentatives texte. Le texte dispose également d’un budget cumulé de mots pour l’essai. Le service peut donc atteindre sa capacité avant votre limite personnelle.', 'Une tentative peut compter même si le fournisseur échoue. Ces plafonds protègent les crédits d’essai ; ils seront revus après mesure des usages et financement.'] },
+    { h2: 'Futur accès Pro', p: ['Des quotas supérieurs, le traitement par lots, les rapports sauvegardés et les crédits payants sont prévus. Aucun paiement ou abonnement n’est proposé aujourd’hui. La liste d’attente Pro sur les pages des détecteurs permet de manifester votre intérêt.'] }
+  ], faq: []
+};
+
+ROUTE_MAP['how-to-read-ai-detector-results'] = {
+  slug:'how-to-read-ai-detector-results',locale:'en',alt:'fr/comprendre-resultat-detecteur-ia',toolType:'guide',
+  title:'How to interpret an AI detector score | Atlas AI Detector',metaDescription:'Understand AI scores, uncertainty, false positives and the checks to make before drawing a conclusion.',h1:'How to read an AI detector result',
+  intro:'A detector provides an indicator. Context and independent evidence remain necessary.',
+  sections:[
+    {h2:'A score is not an authorship certificate',p:['Atlas displays the provider’s score. A high value indicates stronger AI-like patterns in the analyzed input, but it does not establish who created it. It is not a measured percentage of AI-written words.', 'Do not treat the result as proof. Review drafts, source material and revision history when they are available and shared with permission.']},
+    {h2:'Why results can disagree',p:['Models and thresholds differ. Short passages, formulaic writing, translation and editing can affect results. A low score does not establish human origin, and a high score can be a false positive.']},
+    {h2:'What the video report covers',p:['Atlas’s video beta shows the highest score among returned frames. It does not inspect every moment of a clip and does not analyze its audio. An unflagged sampled frame cannot validate the entire video.']}
+  ],faq:[]
+};
+ROUTE_MAP['fr/comprendre-resultat-detecteur-ia'] = {
+  slug:'fr/comprendre-resultat-detecteur-ia',locale:'fr',alt:'how-to-read-ai-detector-results',toolType:'guide',
+  title:'Comment interpréter un score de détecteur IA | Atlas AI Detector',metaDescription:'Comprendre les scores IA, l’incertitude, les faux positifs et les vérifications utiles avant de conclure.',h1:'Comprendre un résultat de détecteur IA',
+  intro:'Un détecteur fournit un indice. Le contexte et des éléments indépendants restent nécessaires.',
+  sections:[
+    {h2:'Un score ne certifie pas la paternité',p:['Atlas affiche le score du fournisseur. Un score élevé indique davantage de motifs associés à l’IA dans le contenu analysé, sans établir qui l’a créé. Il ne mesure pas un pourcentage de mots rédigés par IA.', 'Ne considérez pas ce résultat comme une preuve. Examinez les brouillons, les sources et l’historique des versions lorsqu’ils sont disponibles et partagés avec autorisation.']},
+    {h2:'Pourquoi les résultats peuvent diverger',p:['Les modèles et leurs seuils diffèrent. Les textes courts, normés, traduits ou retravaillés peuvent modifier les résultats. Un score faible ne prouve pas une origine humaine ; un score élevé peut être un faux positif.']},
+    {h2:'Ce que couvre le rapport vidéo',p:['La bêta vidéo d’Atlas affiche le score le plus élevé parmi les images renvoyées. Elle ne vérifie pas chaque instant du clip et n’analyse pas la piste audio. Une image échantillonnée sans signal ne valide pas toute la vidéo.']}
+  ],faq:[]
+};
 
 export function getRoute(locale: Locale, slug?: string): RouteContent | undefined {
   const key = locale === 'fr' ? (slug ? `fr/${slug}` : 'fr') : slug || '';
@@ -477,3 +531,10 @@ export function slugsFor(locale: Locale): string[] {
     .filter((r) => r.locale === locale && r.slug !== '' && r.slug !== 'fr')
     .map((r) => (locale === 'fr' ? r.slug.slice(3) : r.slug));
 }
+
+ROUTE_MAP["fr/choisir-detecteur-ia"] = {"slug":"fr/choisir-detecteur-ia","locale":"fr","alt":"choose-ai-detector","title":"Comment choisir un détecteur IA | Atlas AI Detector","metaDescription":"Choisissez selon le contenu, les limites et la confidentialité, plutôt qu’une promesse de précision.","h1":"Comment choisir un détecteur IA","intro":"Choisissez selon le contenu, les limites et la confidentialité, plutôt qu’une promesse de précision.","toolType":"guide","sections":[{"h2":"Commencer par son besoin","p":["Une vérification ponctuelle et un traitement quotidien de nombreux documents ne demandent pas la même solution. Définissez le format, la langue, la longueur et le volume avant de comparer les offres."]},{"h2":"Comparer les conditions réelles","p":["Vérifiez les limites gratuites, le renouvellement des crédits, le coût des dépassements et l’annulation. Une offre illimitée peut avoir des restrictions. Consultez les conditions actuelles du fournisseur avant de payer."]},{"h2":"Tester sur des exemples connus","p":["Essayez des contenus dont vous connaissez l’origine. Notez les fausses alertes, les contenus IA sans signal et les résultats incertains séparément. Un seul résultat convaincant ne mesure pas la précision générale."]},{"h2":"Confidentialité et Atlas","p":["Atlas envoie les médias à Hive et le texte au fournisseur configuré. C2PA est vérifié localement. Les comptes restent en bêta et les crédits payants ne sont pas disponibles. Nous n’avons pas réalisé de comparaison indépendante avec les autres détecteurs."]}],"faq":[]};
+ROUTE_MAP["choose-ai-detector"] = {"slug":"choose-ai-detector","locale":"en","alt":"fr/choisir-detecteur-ia","title":"How to choose an AI detector | Atlas AI Detector","metaDescription":"Choose according to content, limits and privacy rather than a promised accuracy number.","h1":"How to choose an AI detector","intro":"Choose according to content, limits and privacy rather than a promised accuracy number.","toolType":"guide","sections":[{"h2":"Start with your task","p":["A one-off check and daily processing of many documents require different solutions. Identify format, language, length and volume before comparing offers."]},{"h2":"Compare actual conditions","p":["Check free limits, credit renewal, overage costs and cancellation. Unlimited offers can have restrictions. Read the provider’s current terms before paying."]},{"h2":"Test on known examples","p":["Try content whose origin you know. Record false alarms, AI examples with no signal and uncertain results separately. One convincing result does not establish general accuracy."]},{"h2":"Privacy and Atlas","p":["Atlas sends media to Hive and text to the configured provider. C2PA is checked locally. Accounts remain in beta and paid credits are unavailable. We have not performed an independent comparison with other detectors."]}],"faq":[]};
+ROUTE_MAP["fr/preparer-image-analyse-ia"] = {"slug":"fr/preparer-image-analyse-ia","locale":"fr","alt":"prepare-image-ai-check","title":"Préparer une image avant une analyse IA | Atlas AI Detector","metaDescription":"Une méthode simple pour conserver les informations utiles et interpréter le résultat.","h1":"Préparer une image avant une analyse IA","intro":"Une méthode simple pour conserver les informations utiles et interpréter le résultat.","toolType":"guide","sections":[{"h2":"Conserver le fichier reçu","p":["Gardez une copie du fichier reçu avant de le modifier. Notez sa source et sa date de réception. Si possible, demandez le fichier original : une capture d’écran est une version différente."]},{"h2":"Vérifier le format","p":["Atlas accepte JPG, PNG et WEBP jusqu’à 4 Mo. Si vous devez convertir ou réduire le fichier, conservez aussi la version initiale et notez la modification. Ne comparez pas des versions différentes comme si elles étaient identiques."]},{"h2":"Séparer score et provenance","p":["Le score IA et les Content Credentials répondent à des questions différentes. Un score faible ne prouve pas une origine humaine. L’absence de credentials ne prouve pas une falsification. Conservez le rapport avec ses limites."]}],"faq":[]};
+ROUTE_MAP["prepare-image-ai-check"] = {"slug":"prepare-image-ai-check","locale":"en","alt":"fr/preparer-image-analyse-ia","title":"Prepare an image for an AI check | Atlas AI Detector","metaDescription":"A simple workflow to preserve useful information and interpret the result.","h1":"Prepare an image for an AI check","intro":"A simple workflow to preserve useful information and interpret the result.","toolType":"guide","sections":[{"h2":"Keep the received file","p":["Keep a copy of the received file before editing it. Note its source and receipt date. If possible request the original: a screenshot is a different version."]},{"h2":"Check the format","p":["Atlas accepts JPG, PNG and WEBP up to 4 MB. If you must convert or resize a file, keep the initial version and record the change. Do not compare different versions as if they were identical."]},{"h2":"Separate score and provenance","p":["AI scores and Content Credentials answer different questions. A low score does not prove human origin. Missing credentials do not prove forgery. Keep the report and its limitations."]}],"faq":[]};
+ROUTE_MAP["fr/texte-signale-ia-que-faire"] = {"slug":"fr/texte-signale-ia-que-faire","locale":"fr","alt":"text-flagged-ai-next-steps","title":"Mon texte est signalé IA : que faire ? | Atlas AI Detector","metaDescription":"Vérifiez le contexte et les preuves de rédaction avant toute conclusion.","h1":"Mon texte est signalé IA : que faire ?","intro":"Vérifiez le contexte et les preuves de rédaction avant toute conclusion.","toolType":"guide","sections":[{"h2":"Ne pas transformer un score en accusation","p":["Un détecteur peut produire une fausse alerte. Le score seul ne permet pas d’établir qui a écrit le texte. Une décision concernant une personne doit tenir compte d’autres éléments et permettre une explication."]},{"h2":"Rassembler les éléments utiles","p":["Conservez les brouillons, les notes, les sources et l’historique de rédaction disponibles. Vérifiez que le texte testé est bien la version concernée. Notez l’outil utilisé et la date du test."]},{"h2":"Utiliser Atlas dans ses limites","p":["Le texte doit respecter les limites indiquées par l’interface. Les quotas sont partagés par réseau et le budget d’essai est limité. Multiplier les tests ne transforme pas des résultats similaires en preuve indépendante."]}],"faq":[]};
+ROUTE_MAP["text-flagged-ai-next-steps"] = {"slug":"text-flagged-ai-next-steps","locale":"en","alt":"fr/texte-signale-ia-que-faire","title":"My text was flagged as AI: what next? | Atlas AI Detector","metaDescription":"Review context and writing evidence before drawing conclusions.","h1":"My text was flagged as AI: what next?","intro":"Review context and writing evidence before drawing conclusions.","toolType":"guide","sections":[{"h2":"Do not turn a score into an accusation","p":["A detector can produce a false alarm. Its score alone does not establish who wrote the text. Decisions affecting a person need additional evidence and an opportunity to explain."]},{"h2":"Gather useful evidence","p":["Keep available drafts, notes, sources and writing history. Verify that the tested text is the relevant version. Record the tool and test date."]},{"h2":"Use Atlas within its limits","p":["Text must satisfy the limits shown in the interface. Quotas are shared by network and the trial budget is limited. Repeated tests do not turn similar results into independent evidence."]}],"faq":[]};

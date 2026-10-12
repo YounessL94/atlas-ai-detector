@@ -1,5 +1,7 @@
+import { recordCompletedAnalysis } from '@/lib/account-history';
+import { inspectMp4 } from '@/lib/video';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyTurnstileToken, hashIp, getClientIp, checkRateLimit, incrementMetric, ConfigError } from '@/lib/security';
+import { verifyTurnstileToken, hashIp, getClientIp, checkRateLimit, reserveTextWords, incrementMetric, ConfigError } from '@/lib/security';
 import { analyzeWithHive, ProviderError, textDetectionAvailable } from '@/lib/analysis';
 import { THRESHOLDS } from '@/lib/config';
 
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
     const locale = form.get('locale') === 'fr' ? 'fr' : 'en';
     m = MESSAGES[locale];
     const modality = form.get('modality');
-    if (modality !== 'image' && modality !== 'text') return json({ error: m.bad }, 400);
+    if (modality !== 'image' && modality !== 'text' && modality !== 'video') return json({ error: m.bad }, 400);
 
     // Text detection needs a configured text provider; fail fast with an honest message.
     if (modality === 'text' && !textDetectionAvailable() && process.env.HIVE_MOCK !== '1') {
@@ -77,18 +79,22 @@ export async function POST(req: NextRequest) {
     // Validate input before spending a Turnstile check or rate-limit slot.
     let text = '';
     let buffer: Buffer | null = null;
-    let mimeType: ReturnType<typeof sniffImage> = null;
+    let mimeType: string | null = null;
     if (modality === 'text') {
       const raw = form.get('text');
       text = typeof raw === 'string' ? raw.trim() : '';
       if (text.length < THRESHOLDS.TEXT_MIN_CHARS) return json({ error: m.textShort }, 400);
       if (text.length > THRESHOLDS.TEXT_MAX_CHARS) return json({ error: m.textLong }, 400);
+      if (text.split(/\s+/u).length > THRESHOLDS.TEXT_MAX_WORDS) return json({ error: locale === 'fr' ? 'Limite de la bêta : 500 mots par analyse.' : 'Beta limit: 500 words per analysis.' }, 400);
     } else {
       const raw = form.get('file');
       if (!(raw instanceof File) || raw.size === 0) return json({ error: m.noFile }, 400);
       if (raw.size > THRESHOLDS.IMAGE_MAX_BYTES) return json({ error: m.tooBig }, 413);
       buffer = Buffer.from(await raw.arrayBuffer());
-      mimeType = sniffImage(buffer);
+      if (modality === 'video') {
+        try { inspectMp4(buffer); } catch { return json({ error: locale === 'fr' ? 'MP4 non fragmenté requis : 4 Mo, 5 secondes et 60 images maximum. Durée et structure doivent être lisibles.' : 'Use a valid non-fragmented MP4: max 4 MB, 5 seconds and 60 frames.' }, 415); }
+        mimeType = 'video/mp4';
+      } else mimeType = sniffImage(buffer);
       if (!mimeType) return json({ error: m.badType }, 415);
     }
 
@@ -100,33 +106,47 @@ export async function POST(req: NextRequest) {
 
     const perIp = await checkRateLimit(ipHash, [
       { name: 'scan_min', windowSec: 60, max: 5 },
-      { name: 'scan_day', windowSec: 86400, max: Number(process.env.DAILY_IP_LIMIT || 40) }
-    ]);
+      { name: 'scan_day', windowSec: 86400, max: Number(process.env.DAILY_IP_LIMIT || 40) },
+      { name: `scan_${modality}_ip_day`, windowSec: 86400, max: modality === 'text' ? 2 : modality === 'video' ? 1 : 5 }
+    ], true);
     if (!perIp.allowed) {
       await incrementMetric('err_rate_limited');
-      return json({ error: perIp.rule === 'scan_day' ? m.daily : m.rate }, 429);
+      return json({ error: perIp.rule?.endsWith('day') ? m.daily : m.rate }, 429);
+    }
+    if (modality === 'video') {
+      const budget = await checkRateLimit('global', [{ name: 'scan_video_global_day', windowSec: 86400, max: 2 }], true);
+      if (!budget.allowed) return json({ error: m.busy }, 429);
     }
     const global = await checkRateLimit('global', [
       // Separate daily budgets per provider (Hive V3 image quota ~100/day; text is billed per word).
       modality === 'image'
         ? { name: 'scan_global_day', windowSec: 86400, max: Number(process.env.DAILY_GLOBAL_LIMIT || 90) }
-        : { name: 'scan_text_global_day', windowSec: 86400, max: Number(process.env.DAILY_TEXT_GLOBAL_LIMIT || 150) }
-    ]);
+        : modality === 'video'
+        ? { name: 'scan_global_day', windowSec: 86400, max: Number(process.env.DAILY_GLOBAL_LIMIT || 90) }
+        : { name: 'scan_text_global_day', windowSec: 86400, max: Number(process.env.DAILY_TEXT_GLOBAL_LIMIT || 4) }
+    ], true);
     if (!global.allowed) {
       await incrementMetric('err_global_cap');
       return json({ error: m.busy }, 429);
     }
 
     if (modality === 'text') {
+      if (!process.env.HIVE_TEXT_API_KEY && !(await reserveTextWords(text.split(/\s+/u).length))) {
+        await incrementMetric('err_text_budget');
+        return json({ error: m.busy }, 429);
+      }
+      await incrementMetric('text_attempts');
       const result = await analyzeWithHive('text', { text }, locale);
       await incrementMetric('text_scans');
+      await recordCompletedAnalysis(result);
       return json(result);
     }
 
     const ext = mimeType!.split('/')[1].replace('jpeg', 'jpg');
-    const result = await analyzeWithHive('image', { fileBuffer: buffer!, fileName: `upload.${ext}`, mimeType: mimeType! }, locale);
-    await incrementMetric('image_scans');
-    return json(result);
+    const result = await analyzeWithHive(modality, { fileBuffer: buffer!, fileName: `upload.${ext}`, mimeType: mimeType! }, locale);
+    await incrementMetric(modality === 'video' ? 'video_scans' : 'image_scans');
+    await recordCompletedAnalysis(result);
+      return json(result);
   } catch (err) {
     if (err instanceof ConfigError) console.error('Config error:', err.message);
     else if (err instanceof ProviderError) console.error('Provider error:', err.message);

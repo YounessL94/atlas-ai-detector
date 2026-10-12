@@ -1,16 +1,18 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { AnalysisResult } from '@/lib/analysis';
 import { inspectProvenance, type ProvenanceResult } from '@/lib/c2pa-client';
 import Turnstile, { type TurnstileHandle } from './Turnstile';
+import AnalysisProgress from './AnalysisProgress';
+import { UploadCloud } from 'lucide-react';
 
-type Modality = 'image' | 'text' | 'c2pa';
+type Modality = 'image' | 'text' | 'c2pa' | 'video';
 
 interface Props {
   initialModality?: Modality;
   locale: 'en' | 'fr';
-  /** Evaluated at build time on the server (Hive text detection needs an Enterprise key). */
+  /** Evaluated at build time on the server using the configured text provider. */
   textAvailable?: boolean;
 }
 
@@ -21,15 +23,15 @@ const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const T = {
   en: {
-    tabs: { image: 'Image', text: 'Text', c2pa: 'C2PA' },
+    tabs: { image: 'Image', text: 'Text', video: 'Video', c2pa: 'Provenance' },
     textShort: `Text is too short (minimum ${TEXT_MIN} characters).`,
     textLong: 'Text is too long (maximum 20,000 characters).',
     noFile: 'Please select an image file.',
     badType: 'Unsupported format. Use JPG, PNG or WEBP.',
-    tooBig: 'This file is larger than the 4 MB limit. For forensic consistency, we do not silently recompress uploads.',
+    tooBig: 'This file is larger than the 4 MB limit. To preserve the original file, we do not silently recompress uploads.',
     captcha: 'Please complete the security check first.',
     placeholder: 'Paste text here to analyze (300 to 20,000 characters)...',
-    min: 'Min. 300 characters',
+    min: 'Min. 300 characters · Max. 500 words (beta)',
     drop: 'Drag & drop an image here or click to browse',
     c2paLocal: 'Checked locally in your browser — not uploaded.',
     analyze: 'Analyze content',
@@ -41,7 +43,7 @@ const T = {
     verdict: { AI_LIKELY: 'LIKELY AI-GENERATED', INDETERMINATE: 'INDETERMINATE', NO_SUFFICIENT_AI_SIGNAL: 'NO SUFFICIENT AI SIGNAL' },
     reliability: 'Reliability',
     rel: { HIGH: 'High', MEDIUM: 'Medium', LOW: 'Low' },
-    signals: 'Forensic signals',
+    signals: 'Analysis signals',
     why: 'Why this result?',
     limits: 'Important limitations',
     provenance: 'Provenance (C2PA Content Credentials)',
@@ -63,7 +65,7 @@ const T = {
     textOff: 'The AI text detector is not available yet. The image detector and the C2PA checker work now.'
   },
   fr: {
-    tabs: { image: 'Image', text: 'Texte', c2pa: 'C2PA' },
+    tabs: { image: 'Image', text: 'Texte', video: 'Vidéo', c2pa: 'Provenance' },
     textShort: `Le texte est trop court (minimum ${TEXT_MIN} caractères).`,
     textLong: 'Le texte est trop long (maximum 20 000 caractères).',
     noFile: 'Veuillez sélectionner un fichier image.',
@@ -71,7 +73,7 @@ const T = {
     tooBig: 'Ce fichier dépasse la limite d’analyse de 4 Mo. Pour préserver la cohérence, nous ne recompressons pas les fichiers.',
     captcha: 'Veuillez d’abord valider le contrôle de sécurité.',
     placeholder: 'Collez ici votre texte à analyser (300 à 20 000 caractères)...',
-    min: 'Min. 300 caractères',
+    min: 'Min. 300 caractères · Max. 500 mots (bêta)',
     drop: 'Glissez-déposez une image ici ou cliquez pour parcourir',
     c2paLocal: 'Vérifié localement dans votre navigateur — aucun envoi.',
     analyze: 'Lancer l’analyse',
@@ -155,6 +157,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
   const [modality, setModality] = useState<Modality>(initialModality);
   const [text, setText] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [videoPreviewFailed, setVideoPreviewFailed] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -167,6 +170,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
   const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setVideoPreviewFailed(false);
     if (!file) {
       setPreview(null);
       return;
@@ -177,7 +181,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
   }, [file]);
 
   function reset(next?: Modality) {
-    if (next) setModality(next);
+    if (next) { setModality(next); if (next !== modality) setFile(null); }
     setError(null);
     setResult(null);
     setProvenance(null);
@@ -186,9 +190,9 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
   function pickFile(f: File | null | undefined) {
     reset();
     if (!f) return setFile(null);
-    if (!IMAGE_TYPES.includes(f.type)) {
+    if (!(modality === 'video' ? f.type === 'video/mp4' : IMAGE_TYPES.includes(f.type))) {
       setFile(null);
-      return setError(t.badType);
+      return setError(modality === 'video' ? (locale === 'fr' ? 'Utilisez un fichier MP4.' : 'Use an MP4 file.') : t.badType);
     }
     if (f.size > IMAGE_MAX) {
       setFile(null);
@@ -199,10 +203,12 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
 
   async function handleAnalyze() {
     reset();
+    if (modality === 'text' && !textAvailable) return;
     if (modality === 'text') {
       const len = text.trim().length;
       if (len < TEXT_MIN) return setError(t.textShort);
       if (len > TEXT_MAX) return setError(t.textLong);
+      if (text.trim().split(/\s+/u).length > 500) return setError(locale === 'fr' ? 'Limite de la bêta : 500 mots par analyse.' : 'Beta limit: 500 words per analysis.');
     } else if (!file) {
       return setError(t.noFile);
     }
@@ -245,17 +251,37 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
     }
   }
 
+  function exportReport() {
+    if (!result && !provenance) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ analysis: result, provenance }, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `atlas-report-${result?.requestId ?? 'provenance'}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   const tone = result ? (result.decision === 'AI_LIKELY' ? 'ai' : result.decision === 'INDETERMINATE' ? 'mid' : 'low') : '';
 
   return (
     <div className="card detector">
-      <div className="tab-group" role="tablist">
-        {(['image', 'text', 'c2pa'] as const).map((m) => (
+      <div className="tab-group" role="tablist" aria-label={locale === "fr" ? "Type d’analyse" : "Analysis type"}>
+        {(['image', 'text', 'video', 'c2pa'] as const).map((m) => (
           <button
             key={m}
             type="button"
             role="tab"
+            id={`atlas-tab-${m}`}
+            aria-controls="atlas-input-panel"
+            tabIndex={modality === m ? 0 : -1}
+            onKeyDown={(event) => {
+              const tabs: Modality[] = ["image", "text", "video", "c2pa"];
+              const index = tabs.indexOf(m);
+              const next = event.key === "ArrowRight" ? tabs[(index + 1) % tabs.length] : event.key === "ArrowLeft" ? tabs[(index + tabs.length - 1) % tabs.length] : event.key === "Home" ? tabs[0] : event.key === "End" ? tabs[tabs.length - 1] : null;
+              if (next && !loading) { event.preventDefault(); reset(next); document.getElementById(`atlas-tab-${next}`)?.focus(); }
+            }}
             aria-selected={modality === m}
+            disabled={loading}
             className={`tab-btn ${modality === m ? 'active' : ''}`}
             onClick={() => reset(m)}
           >
@@ -264,6 +290,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
         ))}
       </div>
 
+      <div id="atlas-input-panel" role="tabpanel" aria-labelledby={`atlas-tab-${modality}`}>
       {modality === 'text' && !textAvailable && (
         <div className="notice" role="status">
           {t.textOff}
@@ -276,7 +303,8 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
             value={text}
             maxLength={TEXT_MAX}
             aria-label={t.tabs.text}
-            onChange={(e) => setText(e.target.value)}
+            disabled={loading}
+            onChange={(e) => { reset(); setText(e.target.value); }}
             placeholder={t.placeholder}
           />
           <div className="counter">
@@ -291,8 +319,10 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
           className={`dropzone ${dragOver ? 'drag' : ''}`}
           role="button"
           tabIndex={0}
-          onClick={() => inputRef.current?.click()}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), inputRef.current?.click())}
+          aria-label={modality === 'video' ? (locale === 'fr' ? 'Choisir un court clip MP4' : 'Choose a short MP4 clip') : t.drop}
+          aria-disabled={loading}
+          onClick={() => !loading && inputRef.current?.click()}
+          onKeyDown={(e) => !loading && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), inputRef.current?.click())}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -301,27 +331,31 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
           onDrop={(e) => {
             e.preventDefault();
             setDragOver(false);
-            pickFile(e.dataTransfer.files?.[0]);
+            if (!loading) pickFile(e.dataTransfer.files?.[0]);
           }}
         >
           <input
             ref={inputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            disabled={loading}
+            accept={modality === 'video' ? 'video/mp4' : 'image/jpeg,image/png,image/webp'}
             hidden
             onChange={(e) => {
               pickFile(e.target.files?.[0]);
               e.target.value = '';
             }}
           />
-          {preview && <img src={preview} alt="" className="preview" />}
-          <p>{file ? file.name : t.drop}</p>
-          <span className="small muted">{locale === 'fr' ? 'JPG, PNG, WEBP — 4 Mo max.' : 'JPG, PNG, WEBP — Max 4 MB'}</span>
+          {preview ? (modality === 'video' ? (videoPreviewFailed ? <span className="small muted">{locale === 'fr' ? 'Aperçu non pris en charge par ce navigateur. Le fichier reste prêt pour l’analyse.' : 'Preview unsupported by this browser. The file can still be analyzed.'}</span> : <video src={preview} controls preload="metadata" className="preview" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()} onError={() => setVideoPreviewFailed(true)} />) : <img src={preview} alt="" className="preview" />) : <div className="upload-icon"><UploadCloud size={31} strokeWidth={1.6}/></div>}
+          <p className="upload-main">{file ? file.name : modality === 'video' ? (locale === 'fr' ? 'Choisir un court clip MP4' : 'Choose a short MP4 clip') : t.drop}</p>
+          <span className="small muted">{modality === 'video' ? (locale === 'fr' ? 'MP4 — 4 Mo, 5 secondes, 60 images max.' : 'MP4 — max 4 MB, 5 seconds, 60 frames') : locale === 'fr' ? 'JPG, PNG, WEBP — 4 Mo max.' : 'JPG, PNG, WEBP — Max 4 MB'}</span>
           {modality === 'c2pa' && <span className="small muted block">{t.c2paLocal}</span>}
         </div>
       )}
 
-      {modality !== 'c2pa' && <Turnstile ref={turnstileRef} onToken={setToken} locale={locale} />}
+      {file && (modality === 'image' || modality === 'c2pa' || modality === 'video') && <button type="button" className="secondary-btn remove-file" disabled={loading} onClick={() => { pickFile(null); }}>{locale === 'fr' ? 'Retirer le fichier' : 'Remove file'}</button>}
+      {modality === 'image' && <p className="processing-note">{locale === 'fr' ? 'Analyse IA : image envoyée à Hive. Provenance C2PA : vérification locale dans votre navigateur. Un score n’est pas une preuve.' : 'AI analysis: image sent to Hive. C2PA provenance: checked locally in your browser. A score is not proof.'}</p>}
+      {modality === 'video' && <p className="processing-note">{locale === 'fr' ? 'Clip envoyé à Hive. Score maximal et détails par image analysée. La piste audio n’est pas évaluée. Bêta limitée à 2 analyses vidéo par jour pour l’ensemble du service.' : 'Clip sent to Hive. Maximum score and details per analyzed frame. Audio is not evaluated. Beta limited to 2 video analyses per day across the service.'}</p>}
+      {(modality === 'image' || modality === 'video' || (modality === 'text' && textAvailable)) && <Turnstile ref={turnstileRef} onToken={setToken} locale={locale} />}
 
       {error && (
         <div className="error" role="alert">
@@ -329,7 +363,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
         </div>
       )}
 
-      <button className="btn" type="button" onClick={handleAnalyze} disabled={loading || (modality === 'text' && !textAvailable)} aria-busy={loading}>
+      <button className="btn" type="button" onClick={handleAnalyze} disabled={loading || (modality === 'text' ? !textAvailable || text.trim().length < TEXT_MIN : !file)} aria-busy={loading}>
         {loading ? (
           <>
             <span className="spinner" aria-hidden="true" /> {t.analyzing}
@@ -337,25 +371,17 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
         ) : modality === 'c2pa' ? (
           t.inspect
         ) : (
-          t.analyze
+          modality === "video" ? (locale === "fr" ? "Analyser le clip vidéo" : "Analyze video clip") : modality === "image" ? (locale === "fr" ? "Détecter une image IA" : "Detect AI in My Image") : t.analyze
         )}
       </button>
 
+      </div>
+      {loading && <AnalysisProgress locale={locale} video={modality === 'video'} text={modality === 'text'} provenanceOnly={modality === 'c2pa'} />}
       <div ref={resultRef} aria-live="polite">
         {result && (
           <div className="result">
-            <div className={`result-header tone-${tone}`}>
-              <div className="eyebrow">{t.estimate}</div>
-              <div className="score-badge">{result.aiLikelihoodEstimate}%</div>
-              <div className="meter" aria-hidden="true">
-                <span style={{ width: `${result.aiLikelihoodEstimate}%` }} />
-              </div>
-              <div className="verdict-title">{t.verdict[result.decision]}</div>
-              <div className="small muted">
-                {t.reliability}
-                {locale === 'fr' ? ' : ' : ': '}
-                {t.rel[result.reliability]}
-              </div>
+            <button type="button" className="secondary-btn export-report" onClick={exportReport}>{locale === 'fr' ? 'Exporter le rapport JSON' : 'Export JSON report'}</button>
+            <div className={`result-header tone-${tone}`}><div className="result-kicker"><span className="result-live-dot" />{locale === "fr" ? "RAPPORT D’ANALYSE IA / ANALYSE TERMINÉE" : "AI ANALYSIS REPORT / ANALYSIS COMPLETE"}</div><div className="result-dashboard-top"><div className="result-score-ring" style={{"--score": `${result.aiLikelihoodEstimate}%`} as React.CSSProperties}><div><strong>{result.aiLikelihoodEstimate}%</strong><small>{locale === "fr" ? "Signal IA" : "AI signal"}</small></div></div><div className="result-dashboard-summary"><span>{locale === "fr" ? "Évaluation du modèle" : "Model assessment"}</span><strong>{t.verdict[result.decision]}</strong><p>{locale === "fr" ? "Score du fournisseur, pas une probabilité calibrée ni une preuve." : "Provider score, not a calibrated probability or definitive proof."}</p><span>{t.reliability}: {t.rel[result.reliability]}</span></div></div>
             </div>
 
             <div className="result-grid">
@@ -394,8 +420,14 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
             </p>
           </div>
         )}
+        {provenance && !result && <button type="button" className="secondary-btn export-report" onClick={exportReport}>{locale === 'fr' ? 'Exporter le rapport de provenance' : 'Export provenance report'}</button>}
         {provenance && <Provenance p={provenance} t={t} />}
       </div>
     </div>
   );
 }
+
+
+
+
+

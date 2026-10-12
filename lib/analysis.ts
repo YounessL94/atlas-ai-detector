@@ -12,7 +12,7 @@ export interface Signal {
 }
 
 export interface AnalysisResult {
-  modality: 'image' | 'text';
+  modality: 'image' | 'text' | 'video';
   decision: Decision;
   aiLikelihoodEstimate: number;
   reliability: Reliability;
@@ -46,7 +46,11 @@ interface HiveClass {
   [k: string]: unknown;
 }
 
-const classScore = (c?: HiveClass) => (typeof c?.score === 'number' ? c.score : typeof c?.value === 'number' ? c.value : undefined);
+const validUnitScore = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= 1;
+const classScore = (c?: HiveClass) => {
+  const value = c?.score ?? c?.value;
+  return validUnitScore(value) ? value : undefined;
+};
 
 // Hive wraps results as { status: [ { status, response } ] }; docs samples sometimes show the inner object only.
 function hiveResponse(data: any): any {
@@ -148,14 +152,14 @@ export function parseHiveText(response: any, isFr: boolean): { score: number; si
     .map((o: any) => {
       const c = o?.classes?.[0];
       if (!c) return undefined;
-      if (typeof c.ai_generated === 'number') return c.ai_generated;
-      if (c.class === 'ai_generated' && typeof c.score === 'number') return c.score;
+      if (validUnitScore(c.ai_generated)) return c.ai_generated;
+      if (c.class === 'ai_generated' && validUnitScore(c.score)) return c.score;
       return undefined;
     })
     .filter((x: unknown): x is number => typeof x === 'number');
 
-  const overall = typeof agg === 'number' ? agg : segments.length ? segments.reduce((a, b) => a + b, 0) / segments.length : undefined;
-  if (typeof overall !== 'number') throw new ProviderError('Hive text output missing ai_generated score');
+  const overall = validUnitScore(agg) ? agg : segments.length ? segments.reduce((a, b) => a + b, 0) / segments.length : undefined;
+  if (!validUnitScore(overall)) throw new ProviderError('Hive text output missing ai_generated score');
 
   const signals: Signal[] = [{ label: isFr ? 'Score global du texte' : 'Aggregate text score', value: pct(overall) }];
   if (segments.length > 1) {
@@ -169,13 +173,13 @@ export function parseHiveText(response: any, isFr: boolean): { score: number; si
 
 // Winston returns a *human* score 0-100 (higher = more human); we convert to an AI likelihood.
 export function parseWinston(data: any, isFr: boolean): { score: number; signals: Signal[]; segmentSpread: number } {
-  if (typeof data?.score !== 'number') throw new ProviderError('Winston response missing score');
+  if (typeof data?.score !== 'number' || !Number.isFinite(data.score) || data.score < 0 || data.score > 100) throw new ProviderError('Winston response missing score');
   const ai = 1 - data.score / 100;
   const signals: Signal[] = [{ label: isFr ? 'Score global du texte' : 'Aggregate text score', value: pct(ai) }];
 
   const sentences: number[] = (Array.isArray(data.sentences) ? data.sentences : [])
     .map((s: any) => s?.score)
-    .filter((x: unknown): x is number => typeof x === 'number');
+    .filter((x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= 100);
   let segmentSpread = 0;
   if (sentences.length >= 3) {
     const flagged = sentences.filter((h) => h < 50).length;
@@ -202,7 +206,7 @@ export function parseWinston(data: any, isFr: boolean): { score: number; signals
 
 // Name kept for compatibility: routes image detection to Hive and text detection to Hive (Enterprise) or Winston.
 export async function analyzeWithHive(
-  modality: 'image' | 'text',
+  modality: 'image' | 'text' | 'video',
   payload: { text?: string; fileBuffer?: Buffer; fileName?: string; mimeType?: string },
   locale: Locale
 ): Promise<AnalysisResult> {
@@ -210,12 +214,12 @@ export async function analyzeWithHive(
   const requestId = 'req_' + crypto.randomBytes(6).toString('hex');
   const isFr = locale === 'fr';
 
-  const v2Key = modality === 'text' ? process.env.HIVE_TEXT_API_KEY : process.env.HIVE_IMAGE_API_KEY;
-  const v3Key = modality === 'image' ? process.env.HIVE_API_KEY : undefined;
+  const v2Key = modality === 'text' ? process.env.HIVE_TEXT_API_KEY : modality === 'image' ? process.env.HIVE_IMAGE_API_KEY : undefined;
+  const v3Key = modality !== 'text' ? process.env.HIVE_API_KEY : undefined;
   const winstonKey = modality === 'text' ? process.env.WINSTON_API_KEY : undefined;
 
   if (!v2Key && !v3Key && !winstonKey) {
-    if (process.env.NODE_ENV !== 'production' && process.env.HIVE_MOCK === '1') {
+    if (modality !== 'video' && process.env.NODE_ENV !== 'production' && process.env.HIVE_MOCK === '1') {
       return devMock(modality, payload, locale, requestId);
     }
     throw new ConfigError(`Hive API key missing for ${modality}`);
@@ -243,12 +247,13 @@ export async function analyzeWithHive(
   } else {
     response = await callHiveV3Image(v3Key!, payload.fileBuffer!, payload.mimeType || 'image/jpeg');
   }
+  if (modality === 'video') return parseHiveVideo(response, locale, requestId, Date.now() - startTime);
   const { score, signals } = parseHiveImage(response, isFr);
   return normalizeVerdict({ modality, score, signals, locale, requestId, latencyMs: Date.now() - startTime });
 }
 
 export function normalizeVerdict(args: {
-  modality: 'image' | 'text';
+  modality: 'image' | 'text' | 'video';
   score: number;
   signals: Signal[];
   locale: Locale;
@@ -260,6 +265,7 @@ export function normalizeVerdict(args: {
 }): AnalysisResult {
   const { modality, score, signals, locale, requestId, latencyMs, textLength, segmentSpread = 0 } = args;
   const isFr = locale === 'fr';
+  if (!Number.isFinite(score) || score < 0 || score > 100) throw new ProviderError('Invalid analysis score');
 
   let decision: Decision;
   let reliability: Reliability;
@@ -316,14 +322,14 @@ export function normalizeVerdict(args: {
   const limitations = isFr
     ? [
         'Ce résultat est probabiliste et ne constitue pas une preuve d’origine ou de paternité.',
-        modality === 'image'
+        modality !== 'text'
           ? 'Recompression, captures d’écran, redimensionnement ou retouches peuvent masquer ou imiter des signaux.'
           : 'Textes courts, normés, traduits ou rédigés par des non-natifs peuvent produire des faux positifs.',
         'N’utilisez pas ce résultat comme seule base d’une décision disciplinaire, professionnelle ou juridique.'
       ]
     : [
         'This result is probabilistic and is not proof of origin or authorship.',
-        modality === 'image'
+        modality !== 'text'
           ? 'Recompression, screenshots, resizing or edits can hide or mimic signals.'
           : 'Short, formulaic, translated or non-native writing can produce false positives.',
         'Do not use this result as the sole basis for disciplinary, professional or legal decisions.'
@@ -357,4 +363,26 @@ function devMock(modality: 'image' | 'text', payload: { text?: string; fileBuffe
     textLength: payload.text?.length,
     provider: 'DEV MOCK'
   });
+}
+
+export function parseHiveVideo(response: any, locale: Locale, requestId: string, latencyMs: number): AnalysisResult {
+  const isFr = locale === 'fr';
+  const output = response?.output;
+  if (!Array.isArray(output) || !output.length) throw new ProviderError('Hive video output missing');
+  const values = output.map((frame: any) => {
+    const ai = classScore(frame.classes?.find((c: HiveClass) => c.class === 'ai_generated'));
+    const timestamp = frame.extra?.find((e: any) => e.name === 'timestamp')?.value ?? frame.time;
+    if (typeof ai !== 'number' || !Number.isFinite(ai) || ai < 0 || ai > 1 || typeof timestamp !== 'number' || !Number.isFinite(timestamp) || timestamp < 0) throw new ProviderError('Invalid Hive video frame');
+    return { ai, timestamp };
+  });
+  const peak = Math.max(...values.map(f => f.ai));
+  const result = normalizeVerdict({ modality: 'video', score: pct(peak), signals: [
+    { label: isFr ? 'Images analysées par Hive' : 'Frames analyzed by Hive', status: String(values.length) },
+    ...values.map(f => ({ label: `${f.timestamp.toFixed(2)} s`, value: pct(f.ai) }))
+  ], locale, requestId, latencyMs });
+  result.decision = peak >= .9 ? 'AI_LIKELY' : peak > .35 ? 'INDETERMINATE' : 'NO_SUFFICIENT_AI_SIGNAL';
+  result.reliability = 'LOW';
+  result.explanation = [isFr ? 'Le score affiché est le maximum des images analysées, pas un pourcentage de la vidéo généré par IA. Le seuil vidéo est de 90 % sur au moins une image.' : 'The displayed score is the maximum across analyzed frames, not the percentage of the video generated by AI. The video threshold is 90% on at least one frame.'];
+  result.limitations = [isFr ? 'L’analyse porte uniquement sur les images renvoyées par Hive. Les passages non échantillonnés et la piste audio ne sont pas évalués dans ce rapport.' : 'This report only covers frames returned by Hive. Unsampled sections and the audio track are not assessed.', ...result.limitations];
+  return result;
 }

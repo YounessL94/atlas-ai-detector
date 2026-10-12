@@ -1,16 +1,21 @@
 {
-  "name": "ai-content-forensics",
+  "name": "atlas-ai-detector",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@contentauth/c2pa-web": "0.15.3",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
     "@vercel/analytics": "^2.0.1",
+    "lucide-react": "^1.55.0",
+    "motion": "^14.1.0",
     "next": "^16.3.8",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"

@@ -1,0 +1,4 @@
+const test=require('node:test'),assert=require('node:assert/strict');const {summarize}=require('../scripts/evaluate-results.cjs');
+const row=(id,origin,decision)=>({id,origin,decision,modality:'image',originEvidence:'Controlled source record'});
+test('evaluation exposes false alarms, misses, uncertain results and failures',()=>{const report=summarize([row('h','human','AI_LIKELY'),row('a','ai','NO_SUFFICIENT_AI_SIGNAL'),row('u','human','INDETERMINATE'),{...row('e','ai',null),error:'provider unavailable'}]);assert.deepEqual(report.groups.image,{samples:4,human:2,ai:2,falseAlarms:1,misses:1,indeterminate:1,errors:1,completed:3});});
+test('evaluation refuses unknown provenance and duplicate samples',()=>{assert.throws(()=>summarize([{...row('x','human','AI_LIKELY'),originEvidence:''}]));assert.throws(()=>summarize([row('x','human','AI_LIKELY'),row('x','ai','AI_LIKELY')]));});

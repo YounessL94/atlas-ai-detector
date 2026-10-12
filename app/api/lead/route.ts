@@ -11,6 +11,7 @@ const json = (body: unknown, status = 200) =>
 
 export async function POST(req: NextRequest) {
   try {
+    if (Number(req.headers.get('content-length') || 0) > 4096) return json({ error: 'Request too large' }, 413);
     let body: any;
     try {
       body = await req.json();
@@ -27,14 +28,15 @@ export async function POST(req: NextRequest) {
     if (!email || email.length > 254 || !EMAIL_RE.test(email)) return json({ error: 'Invalid email' }, 400);
     if (!type) return json({ error: 'Invalid waitlist' }, 400);
 
-    const limit = await checkRateLimit(hashIp(getClientIp(req.headers)), [{ name: 'lead_hour', windowSec: 3600, max: 5 }]);
+    const limit = await checkRateLimit(hashIp(getClientIp(req.headers)), [{ name: 'lead_hour', windowSec: 3600, max: 5 }], true);
     if (!limit.allowed) return json({ error: 'Too many requests' }, 429);
 
-    await redisPipeline([
+    const stored = await redisPipeline([
       ['SADD', `waitlist:${type}`, email],
       ['HSETNX', `waitlist:${type}:meta`, email, JSON.stringify({ locale, ts: new Date().toISOString() })]
     ]);
 
+    if (!stored || stored.length !== 2 || stored.some(command => command.error || (command.result !== 0 && command.result !== 1))) throw new Error('Waitlist storage failed');
     await incrementMetric(`lead_${type}`);
     return json({ success: true });
   } catch (err) {

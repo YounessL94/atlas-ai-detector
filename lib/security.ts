@@ -78,11 +78,28 @@ export interface LimitRule {
   max: number;
 }
 
+/** Reserve words atomically before Winston. Failed provider calls retain the reservation.
+ * The cumulative trial budget never expires; raising it requires an explicit env change.
+ */
+export async function reserveTextWords(words: number): Promise<boolean> {
+  const budget = Number(process.env.TEXT_TOTAL_WORD_BUDGET || 2000);
+  if (!Number.isSafeInteger(words) || words < 1 || !Number.isSafeInteger(budget) || budget < 1) return false;
+  try {
+    const data = await redisPipeline([['EVAL',
+      "local used=tonumber(redis.call('GET',KEYS[1]) or '0'); local n=tonumber(ARGV[1]); local cap=tonumber(ARGV[2]); if used+n>cap then return 0 end; redis.call('INCRBY',KEYS[1],n); return 1",
+      1, 'budget:winston:reserved_words:v1', words, budget]]);
+    return data?.length === 1 && !data[0].error && data[0].result === 1;
+  } catch (err) {
+    console.error('Text word budget unavailable');
+    return false;
+  }
+}
+
 /**
  * Fixed-window counters. `subject` is an already-hashed IP (or 'global').
  * Fails open on transient Redis errors (Turnstile still gates abuse); fails closed on missing config in production.
  */
-export async function checkRateLimit(subject: string, rules: LimitRule[]): Promise<{ allowed: boolean; rule?: string }> {
+export async function checkRateLimit(subject: string, rules: LimitRule[], failClosed = false): Promise<{ allowed: boolean; rule?: string }> {
   const now = Math.floor(Date.now() / 1000);
   const keys = rules.map((r) => `rl:${r.name}:${subject}:${Math.floor(now / r.windowSec)}`);
   const commands: Array<Array<string | number>> = [];
@@ -93,16 +110,17 @@ export async function checkRateLimit(subject: string, rules: LimitRule[]): Promi
 
   try {
     const data = await redisPipeline(commands);
-    if (!data) return { allowed: true };
+    if (!data) return { allowed: !failClosed };
     for (let i = 0; i < rules.length; i++) {
       const count = Number(data[i * 2]?.result ?? 0);
+      if (failClosed && (!Number.isFinite(count) || count < 1 || data[i * 2]?.error)) return { allowed: false };
       if (count > rules[i].max) return { allowed: false, rule: rules[i].name };
     }
     return { allowed: true };
   } catch (err) {
     if (err instanceof ConfigError) throw err;
     console.error('Rate limit error:', (err as Error).message);
-    return { allowed: true };
+    return { allowed: !failClosed };
   }
 }
 
