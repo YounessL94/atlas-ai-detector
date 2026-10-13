@@ -6,7 +6,7 @@ import { SITE_CONFIG } from '@/lib/config';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   applicationName: SITE_CONFIG.name,
-  verification: SITE_CONFIG.googleSiteVerification ? { google: SITE_CONFIG.googleSiteVerification } : undefined
+  verification: { google: [SITE_CONFIG.googleSiteVerification, 'k9_wOVN0JLaz_lwDHZTWccmDr9E8qiNQ4dcPmYyoDsY'].filter(Boolean) }
 };
 
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#0f172a' };
