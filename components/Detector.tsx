@@ -167,6 +167,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
   const [token, setToken] = useState<string | null>(null);
   const turnstileRef = useRef<TurnstileHandle>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textWordCount = text.trim() ? text.trim().split(/\s+/u).length : 0;
   const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -310,9 +311,16 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
           <div className="counter">
             <span>{t.min}</span>
             <span>
-              {text.trim().length.toLocaleString(locale)} / {TEXT_MAX.toLocaleString(locale)}
+              {textWordCount} / 500 {locale === 'fr' ? 'mots' : 'words'} · {text.trim().length.toLocaleString(locale)} / {TEXT_MAX.toLocaleString(locale)} {locale === 'fr' ? 'caractères' : 'characters'}
             </span>
           </div>
+          {textWordCount > 500 && (
+            <p className="notice" role="status">
+              {locale === 'fr'
+                ? 'Votre texte dépasse 500 mots. Raccourcissez-le avant de lancer l’analyse.'
+                : 'Your text exceeds 500 words. Shorten it before starting the analysis.'}
+            </p>
+          )}
         </div>
       ) : (
         <div
@@ -363,7 +371,7 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
         </div>
       )}
 
-      <button className="btn" type="button" onClick={handleAnalyze} disabled={loading || (modality === 'text' ? !textAvailable || text.trim().length < TEXT_MIN : !file)} aria-busy={loading}>
+      <button className="btn" type="button" onClick={handleAnalyze} disabled={loading || (modality === 'text' ? !textAvailable || text.trim().length < TEXT_MIN || textWordCount > 500 : !file)} aria-busy={loading}>
         {loading ? (
           <>
             <span className="spinner" aria-hidden="true" /> {t.analyzing}
