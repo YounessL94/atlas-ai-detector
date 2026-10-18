@@ -6,6 +6,7 @@ import { inspectProvenance, type ProvenanceResult } from '@/lib/c2pa-client';
 import Turnstile, { type TurnstileHandle } from './Turnstile';
 import AnalysisProgress from './AnalysisProgress';
 import { UploadCloud } from 'lucide-react';
+import Link from 'next/link';
 
 type Modality = 'image' | 'text' | 'c2pa' | 'video';
 
@@ -426,6 +427,15 @@ export default function Detector({ initialModality = 'image', locale, textAvaila
             <p className="tiny muted">
               {result.provider} · {t.ref} {result.requestId}
             </p>
+            <div className="result-next-step">
+              <strong>{locale === 'fr' ? 'Continuer la vérification' : 'Continue your verification'}</strong>
+              <p>{locale === 'fr' ? 'Conservez le contexte, la source et les limites du résultat avec le kit pratique Atlas.' : 'Keep the context, source and result limitations together with the practical Atlas kit.'}</p>
+              <Link className="secondary-btn" href={locale === 'fr' ? '/fr/kit-verification-ia' : '/ai-verification-kit'}>
+                {locale === 'fr' ? 'Découvrir le kit pratique' : 'Explore the practical kit'}
+              </Link>
+              {modality === 'text' && <a className="secondary-btn" href="/go/quetext" rel="sponsored nofollow">{locale === 'fr' ? 'Voir les offres Quetext' : 'View Quetext plans'}</a>}
+              {modality === 'text' && <p className="tiny muted">{locale === 'fr' ? 'Lien affilié : Atlas peut recevoir une commission si vous achetez. Aucun contenu analysé n’est transmis par ce lien.' : 'Affiliate link: Atlas may receive a commission if you purchase. No analyzed content is sent through this link.'}</p>}
+            </div>
           </div>
         )}
         {provenance && !result && <button type="button" className="secondary-btn export-report" onClick={exportReport}>{locale === 'fr' ? 'Exporter le rapport de provenance' : 'Export provenance report'}</button>}

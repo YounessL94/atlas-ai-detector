@@ -546,3 +546,59 @@ ROUTE_MAP["ai-image-detector"].sections.push(...[{"h2":"Example: checking an ima
 ROUTE_MAP["fr/comprendre-resultat-detecteur-ia"].sections.push(...[{"h2":"Un score élevé ne signifie pas un pourcentage de pixels générés","p":["Exemple illustratif, sans test réel : un rapport affichant un signal de 85 ne démontre pas que 85 % des pixels sont artificiels. Il s’agit d’un score de modèle, pas d’une mesure de la quantité de retouche.","Pour documenter une vérification, gardez le fichier source, la date, le nom de l’outil et ses limites. Si une décision concerne une personne, recueillez ses explications et les éléments de création disponibles."]}]);
 
 ROUTE_MAP["how-to-read-ai-detector-results"].sections.push(...[{"h2":"A high score does not measure the proportion of generated pixels","p":["Illustrative example, not an actual test: a report showing a signal of 85 does not establish that 85% of the pixels are artificial. It is a model score, not a measure of how much editing occurred.","Document the source file, date, tool and limitations. If a decision affects a person, consider their explanation and available evidence of how the content was created."]}]);
+
+ROUTE_MAP['fr/kit-verification-ia'] = {
+  slug:'fr/kit-verification-ia', locale:'fr', alt:'ai-verification-kit', toolType:'guide',
+  title:'Kit pratique de vérification IA | Atlas AI Detector',
+  metaDescription:'Checklists, modèle de rapport et méthode pour documenter une vérification IA sans transformer un score en preuve.',
+  h1:'Kit pratique de vérification IA',
+  intro:'Une méthode bilingue pour conserver les sources, interpréter les signaux et produire un rapport prudent.',
+  sections:[
+    {h2:'Ce que contient le kit',p:['Une checklist image, une checklist texte, une procédure vidéo, une fiche C2PA, un modèle de rapport et un registre de vérification. Les documents sont conçus pour être utilisés avant, pendant et après une analyse.']},
+    {h2:'Ce que le kit ne promet pas',p:['Le kit ne certifie pas qu’un contenu est humain ou artificiel. Il aide à documenter la source, la version analysée, les limites de l’outil et les éléments indépendants disponibles.']},
+    {h2:'Pour qui',p:['Le kit vise les rédacteurs, agences, formateurs, éditeurs et petites équipes qui veulent une procédure simple et reproductible. Une version française et une version anglaise sont prévues.']},
+    {h2:'État du lancement',p:['La première édition pilote est finalisée. Inscrivez-vous uniquement si vous souhaitez être prévenu de l’ouverture des ventes et du prix final. Aucun paiement n’est demandé aujourd’hui.']}
+  ],faq:[{q:'Le kit contient-il un certificat d’authenticité ?',a:'Non. Aucun détecteur ne transforme un score probabiliste en preuve d’auteur ou d’origine.'},{q:'Mes fichiers sont-ils inclus dans le kit ?',a:'Non. Le kit ne contient aucune donnée ni aucun contenu soumis par les visiteurs.'}]
+};
+
+ROUTE_MAP['ai-verification-kit'] = {
+  slug:'ai-verification-kit', locale:'en', alt:'fr/kit-verification-ia', toolType:'guide',
+  title:'Practical AI Verification Kit | Atlas AI Detector',
+  metaDescription:'Checklists, report template and a careful workflow for documenting AI-content checks without turning a score into proof.',
+  h1:'Practical AI Verification Kit',
+  intro:'A bilingual workflow for preserving sources, interpreting signals and writing a careful report.',
+  sections:[
+    {h2:'What the kit contains',p:['An image checklist, text checklist, video procedure, C2PA sheet, report template and verification log. The documents cover the steps before, during and after an analysis.']},
+    {h2:'What the kit does not promise',p:['The kit does not certify that content is human-made or artificial. It helps document the source, analyzed version, tool limitations and available independent evidence.']},
+    {h2:'Who it is for',p:['The kit is intended for writers, agencies, trainers, publishers and small teams that need a simple repeatable process. French and English editions are planned.']},
+    {h2:'Launch status',p:['The first pilot edition is complete. Join only if you want to be notified when sales open and final pricing is announced. No payment is requested today.']}
+  ],faq:[{q:'Does the kit include an authenticity certificate?',a:'No. A probabilistic detector score is not proof of authorship or origin.'},{q:'Does the kit contain visitor files?',a:'No. It contains no data or content submitted by visitors.'}]
+};
+
+ROUTE_MAP['fr/formation-detection-ia'] = {
+  slug:'fr/formation-detection-ia', locale:'fr', alt:'ai-detection-training', toolType:'guide',
+  title:'Formation détection IA et provenance | Atlas AI Detector',
+  metaDescription:'Atelier pratique sur les scores, faux positifs, C2PA et procédures de vérification prudentes.',
+  h1:'Formation détection IA et provenance',
+  intro:'Un atelier pratique pour utiliser les détecteurs comme indices et construire une procédure responsable.',
+  sections:[
+    {h2:'Programme',p:['Comprendre un score, reconnaître les faux positifs possibles, distinguer détection et provenance, vérifier C2PA, documenter une analyse et éviter les conclusions abusives.']},
+    {h2:'Format pilote',p:['Atelier à distance de 45 à 60 minutes, avec exemples préparés et questions. Le contenu peut être adapté aux agences, centres de formation, éditeurs et petites équipes.']},
+    {h2:'Livrable',p:['Les participants reçoivent une fiche de méthode. La formation ne fournit pas de certification d’authenticité et ne remplace pas une expertise juridique ou forensique.']},
+    {h2:'Disponibilité',p:['L’offre pilote est en préparation. Signalez votre intérêt pour recevoir les modalités lorsqu’elles seront finalisées. Aucun paiement n’est demandé aujourd’hui.']}
+  ],faq:[]
+};
+
+ROUTE_MAP['ai-detection-training'] = {
+  slug:'ai-detection-training', locale:'en', alt:'fr/formation-detection-ia', toolType:'guide',
+  title:'AI detection and provenance training | Atlas AI Detector',
+  metaDescription:'Practical workshop on scores, false positives, C2PA and careful verification workflows.',
+  h1:'AI detection and provenance training',
+  intro:'A practical workshop for treating detector output as evidence to review, not an automatic verdict.',
+  sections:[
+    {h2:'Workshop topics',p:['Understand scores, identify possible false positives, separate detection from provenance, inspect C2PA, document a check and avoid unsupported conclusions.']},
+    {h2:'Pilot format',p:['A 45 to 60 minute remote workshop with prepared examples and questions, adaptable for agencies, training providers, publishers and small teams.']},
+    {h2:'Deliverable',p:['Participants receive a method sheet. The workshop does not provide an authenticity certificate and is not a substitute for legal or forensic expertise.']},
+    {h2:'Availability',p:['The pilot offer is being prepared. Register your interest to receive details when they are finalized. No payment is requested today.']}
+  ],faq:[]
+};

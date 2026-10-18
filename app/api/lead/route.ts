@@ -3,7 +3,7 @@ import { getClientIp, hashIp, checkRateLimit, redisPipeline, incrementMetric, Co
 
 export const runtime = 'nodejs';
 
-const TYPES = new Set(['pro', 'api', 'video', 'deepfake']);
+const TYPES = new Set(['pro', 'api', 'video', 'deepfake', 'kit', 'training']);
 const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
 
 const json = (body: unknown, status = 200) =>

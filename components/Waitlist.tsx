@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-type WaitlistType = 'pro' | 'api' | 'video' | 'deepfake';
+type WaitlistType = 'pro' | 'api' | 'video' | 'deepfake' | 'kit' | 'training';
 
 const COPY = {
   en: {
@@ -10,6 +10,8 @@ const COPY = {
     api: ['Atlas AI Detector API', 'Integrate AI-content detection into your product.'],
     video: ['AI video detection — private beta', 'Get early access when video analysis opens.'],
     deepfake: ['Deepfake detection — private beta', 'Get early access when deepfake analysis opens.'],
+    kit: ['AI Verification Kit', 'Get notified when the finished pilot kit opens for purchase.'],
+    training: ['Training and advisory', 'Tell us you are interested in an honest, practical workshop about AI detection and provenance.'],
     placeholder: 'you@company.com',
     cta: 'Join the waitlist',
     ok: 'Your address is saved on the waitlist. No confirmation email is sent at this time.',
@@ -21,6 +23,8 @@ const COPY = {
     api: ['API Atlas AI Detector', 'Intégrez la détection de contenus IA à votre produit.'],
     video: ['Détection vidéo IA — bêta privée', 'Accès anticipé dès l’ouverture de l’analyse vidéo.'],
     deepfake: ['Détection de deepfake — bêta privée', 'Accès anticipé dès l’ouverture de l’analyse deepfake.'],
+    kit: ['Kit pratique de vérification IA', 'Soyez prévenu lorsque le kit pilote finalisé sera ouvert à la vente.'],
+    training: ['Formation et accompagnement', 'Signalez votre intérêt pour un atelier pratique sur la détection IA, ses limites et la provenance.'],
     placeholder: 'vous@entreprise.fr',
     cta: 'Rejoindre la liste',
     ok: 'Adresse enregistrée dans la liste d’attente. Aucun email de confirmation n’est envoyé pour le moment.',

@@ -63,6 +63,12 @@ export default function LandingPage({ route }: { route: RouteContent }) {
       </section>
         ))}
       </article>
+      {(route.slug === 'fr/kit-verification-ia' || route.slug === 'ai-verification-kit') && (
+        <Waitlist locale={route.locale} type="kit" />
+      )}
+      {(route.slug === 'fr/formation-detection-ia' || route.slug === 'ai-detection-training') && (
+        <Waitlist locale={route.locale} type="training" />
+      )}
       <nav className="lang-switch" aria-label={isFr ? 'Ressources utiles' : 'Helpful resources'}>
         <Link href={isFr ? '/fr/comprendre-resultat-detecteur-ia' : '/how-to-read-ai-detector-results'}>{isFr ? 'Comprendre un score IA' : 'Understand an AI score'}</Link>
         {' · '}
@@ -70,6 +76,7 @@ export default function LandingPage({ route }: { route: RouteContent }) {
         {' · '}<Link href={isFr?'/fr/choisir-detecteur-ia':'/choose-ai-detector'}>{isFr?'Choisir un détecteur':'Choose a detector'}</Link>
         {' · '}<Link href={isFr?'/fr/preparer-image-analyse-ia':'/prepare-image-ai-check'}>{isFr?'Préparer une image':'Prepare an image'}</Link>
         {' · '}<Link href={isFr?'/fr/texte-signale-ia-que-faire':'/text-flagged-ai-next-steps'}>{isFr?'Texte signalé IA':'Text flagged as AI'}</Link>
+        {' · '}<Link href={isFr?'/fr/kit-verification-ia':'/ai-verification-kit'}>{isFr?'Kit pratique':'Practical kit'}</Link>
       </nav>
       {process.env.AFFILIATE_GPTZERO_ENABLED==='1' && route.toolType==='text' && <aside className="card"><h2>{isFr?'Découvrir un autre outil de texte':'Explore another text tool'}</h2><p>{isFr?'GPTZero est un service externe. Consultez ses limites, prix et conditions avant de choisir. Atlas ne garantit pas sa précision.':'GPTZero is an external service. Review its limits, pricing and terms before choosing. Atlas does not guarantee its accuracy.'}</p><a href="/go/gptzero" rel="sponsored nofollow">{isFr?'Découvrir GPTZero':'Explore GPTZero'}</a><p>{isFr?'Lien affilié : Atlas peut recevoir une commission si vous achetez auprès de ce service.':'Affiliate link: Atlas may receive a commission if you purchase from this service.'}</p></aside>}
 

@@ -44,6 +44,8 @@ export default function SiteShell({ locale, children }: { locale: Locale; childr
           <nav className="footer-nav">
             <Link href={isFr ? '/fr/detecteur-ia' : '/ai-detector'}>{isFr ? 'Détecteur IA' : 'AI Detector'}</Link>
             <Link href={isFr ? '/fr/detecteur-video-ia' : '/ai-video-detector'}>{isFr ? 'Vidéo IA (bêta)' : 'AI Video (beta)'}</Link>
+            <Link href={isFr ? '/fr/kit-verification-ia' : '/ai-verification-kit'}>{isFr ? 'Kit pratique' : 'Practical kit'}</Link>
+            <Link href={isFr ? '/fr/formation-detection-ia' : '/ai-detection-training'}>{isFr ? 'Formation' : 'Training'}</Link>
             <Link href={isFr ? '/fr/confidentialite' : '/privacy'}>{isFr ? 'Confidentialité' : 'Privacy'}</Link>
             <Link href={isFr ? '/fr/compte' : '/account'}>{isFr ? 'Mon compte' : 'My account'}</Link>
             <Link href={isFr ? '/fr/mentions-legales' : '/terms'}>{isFr ? 'Mentions légales' : 'Terms'}</Link>

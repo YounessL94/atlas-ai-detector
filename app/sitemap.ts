@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { allRoutes, absUrl, hreflang } from '@/lib/seo';
 
-const LAST_MODIFIED = new Date('2026-10-12');
+const LAST_MODIFIED = new Date('2026-10-18');
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return allRoutes().map((route) => {
