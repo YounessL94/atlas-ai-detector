@@ -69,6 +69,14 @@ export default function LandingPage({ route }: { route: RouteContent }) {
       {(route.slug === 'fr/formation-detection-ia' || route.slug === 'ai-detection-training') && (
         <Waitlist locale={route.locale} type="training" />
       )}
+      {(route.slug === 'fr' || route.slug === '') && (
+        <section className="card">
+          <h2>{isFr ? 'Passez du score à une vérification documentée' : 'Turn a score into a documented review'}</h2>
+          <p>{isFr ? 'Le kit pilote Atlas réunit les checklists image, texte et vidéo, une fiche C2PA, un modèle de rapport prudent et un registre de vérification.' : 'The Atlas pilot kit brings together image, text and video checklists, a C2PA sheet, a careful report template and a verification log.'}</p>
+          <Link className="secondary-btn" href={isFr ? '/fr/kit-verification-ia' : '/ai-verification-kit'}>{isFr ? 'Découvrir le kit pratique' : 'Explore the practical kit'}</Link>
+          <Link className="secondary-btn" href={isFr ? '/fr/formation-detection-ia' : '/ai-detection-training'}>{isFr ? 'Voir la formation pilote' : 'View pilot training'}</Link>
+        </section>
+      )}
       <nav className="lang-switch" aria-label={isFr ? 'Ressources utiles' : 'Helpful resources'}>
         <Link href={isFr ? '/fr/comprendre-resultat-detecteur-ia' : '/how-to-read-ai-detector-results'}>{isFr ? 'Comprendre un score IA' : 'Understand an AI score'}</Link>
         {' · '}
